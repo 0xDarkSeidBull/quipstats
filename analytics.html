@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuipStats — Network Analytics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --border2: #252535;
+    --text: #e2e2f0;
+    --muted: #6b6b8a;
+    --accent: #7c3aed;
+    --accent2: #a855f7;
+    --gpu: #22d3ee;
+    --gpu2: #06b6d4;
+    --cpu: #f472b6;
+    --cpu2: #ec4899;
+    --qpu: #4ade80;
+    --active: #34d399;
+    --offline: #475569;
+    --gold: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand { display: flex; flex-direction: column; }
+  .nav-brand .logo { font-family: 'Space Mono', monospace; font-size: 16px; color: var(--text); letter-spacing: -0.5px; }
+  .nav-brand .sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .nav-links { display: flex; gap: 6px; }
+  .nav-links a {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--surface2); }
+  .nav-links a.active { color: var(--text); background: var(--surface2); border-color: var(--border2); }
+  .nav-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  /* MAIN */
+  main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  .page-header {
+    margin-bottom: 32px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .page-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* LOADING */
+  .loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    gap: 16px;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-screen p { color: var(--muted); font-size: 13px; }
+
+  /* STAT CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 500px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 10px 10px 0 0;
+  }
+  .stat-card.total::before { background: var(--accent2); }
+  .stat-card.active-c::before { background: var(--active); }
+  .stat-card.gpu-c::before { background: var(--gpu); }
+  .stat-card.cpu-c::before { background: var(--cpu); }
+  .stat-card.offline-c::before { background: var(--offline); }
+
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .stat-value { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; line-height: 1; }
+  .stat-card.total .stat-value { color: var(--accent2); }
+  .stat-card.active-c .stat-value { color: var(--active); }
+  .stat-card.gpu-c .stat-value { color: var(--gpu); }
+  .stat-card.cpu-c .stat-value { color: var(--cpu); }
+  .stat-card.offline-c .stat-value { color: var(--muted); }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  /* CHART GRID */
+  .charts-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .charts-row.two { grid-template-columns: 1fr 1fr; }
+  .charts-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .charts-row.one { grid-template-columns: 1fr; }
+  @media (max-width: 800px) { .charts-row.two, .charts-row.three { grid-template-columns: 1fr; } }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card-header { margin-bottom: 18px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .card-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+  .chart-wrap.donut { max-width: 260px; margin: 0 auto; }
+  .chart-wrap canvas { display: block; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  .legend-left { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-val { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text); }
+
+  /* LEADERBOARD */
+  .leaderboard { display: flex; flex-direction: column; gap: 6px; }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+  .lb-row:hover { border-color: var(--border2); }
+  .lb-rank {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .lb-rank.gold { color: var(--gold); }
+  .lb-rank.silver { color: #94a3b8; }
+  .lb-rank.bronze { color: #c17b3f; }
+  .lb-name {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .lb-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .lb-badge.GPU { background: rgba(34,211,238,0.15); color: var(--gpu); border: 1px solid rgba(34,211,238,0.25); }
+  .lb-badge.CPU { background: rgba(244,114,182,0.12); color: var(--cpu); border: 1px solid rgba(244,114,182,0.2); }
+  .lb-badge.QPU { background: rgba(74,222,128,0.12); color: var(--qpu); border: 1px solid rgba(74,222,128,0.2); }
+  .lb-cores {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    width: 60px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .lb-bar-wrap { width: 80px; flex-shrink: 0; }
+  .lb-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border2);
+    overflow: hidden;
+  }
+  .lb-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+
+  /* GPU TABLE */
+  .gpu-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .gpu-table th {
+    text-align: left;
+    padding: 6px 10px;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gpu-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .gpu-table tr:last-child td { border-bottom: none; }
+  .gpu-table tr:hover td { background: var(--surface2); }
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .status-dot.active { background: var(--active); box-shadow: 0 0 6px var(--active); }
+  .status-dot.offline { background: var(--offline); }
+
+  /* IP pill */
+  .ip-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* ERROR */
+  .error-msg {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+  }
+  .error-msg strong { display: block; color: #f87171; margin-bottom: 8px; font-size: 15px; }
+
+  /* REFRESH BAR */
+  .refresh-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .refresh-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--active);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* SECTION DIVIDER */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Cores heat grid */
+  .cores-info {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .cores-info-item { text-align: center; }
+  .cores-info-item .val {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .cores-info-item .lbl { font-size: 11px; color: var(--muted); }
+
+  /* Scrollable GPU list */
+  .gpu-list-wrap { max-height: 340px; overflow-y: auto; }
+  .gpu-list-wrap::-webkit-scrollbar { width: 4px; }
+  .gpu-list-wrap::-webkit-scrollbar-track { background: transparent; }
+  .gpu-list-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <span class="logo">QuipStats</span>
+    <span class="sub">Post-Quantum Mining Telemetry</span>
+  </div>
+  <div class="nav-links">
+    <a href="quipstats.html">Live Nodes</a>
+    <a href="analytics.html" class="active">Analytics</a>
+  </div>
+  <span class="nav-time" id="navTime">—</span>
+</nav>
+
+<main>
+  <div class="page-header">
+    <h1>Network Analytics</h1>
+    <p>Aggregated statistics across all observed nodes</p>
+  </div>
+
+  <div id="loadingScreen" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Fetching node data…</p>
+  </div>
+
+  <div id="analyticsContent" style="display:none">
+
+    <div class="refresh-bar">
+      <div class="refresh-dot"></div>
+      <span id="lastUpdated">Loading…</span>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-label">Total Nodes</div>
+        <div class="stat-value" id="sTotal">—</div>
+        <div class="stat-sub">Ever seen</div>
+      </div>
+      <div class="stat-card active-c">
+        <div class="stat-label">Active Now</div>
+        <div class="stat-value" id="sActive">—</div>
+        <div class="stat-sub">Last 15 min</div>
+      </div>
+      <div class="stat-card gpu-c">
+        <div class="stat-label">GPU Nodes</div>
+        <div class="stat-value" id="sGpu">—</div>
+        <div class="stat-sub">CUDA / QPU</div>
+      </div>
+      <div class="stat-card cpu-c">
+        <div class="stat-label">CPU Nodes</div>
+        <div class="stat-value" id="sCpu">—</div>
+        <div class="stat-sub">CPU miners</div>
+      </div>
+      <div class="stat-card offline-c">
+        <div class="stat-label">Offline</div>
+        <div class="stat-value" id="sOffline">—</div>
+        <div class="stat-sub">&gt;15 min ago</div>
+      </div>
+    </div>
+
+    <!-- ROW 1: Type donuts -->
+    <div class="section-label">Node Distribution</div>
+    <div class="charts-row three">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Nodes by Type</div>
+          <div class="card-sub">All observed miners</div>
+        </div>
+        <div class="chart-wrap donut"><canvas id="chartNodeType" height="220"></canvas></div>
+        <div class="legend" id="legendNodeType"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Active vs Offline</div>
+          <div class="card-sub">Last 15 min window</div>
+        </div>
+        <div class="chart-wrap donut"><canvas id="chartActiveOffline" height="220"></canvas></div>
+        <div class="legend" id="legendActiveOffline"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Active by Type</div>
+          <div class="card-sub">Currently online breakdown</div>
+        </div>
+        <div class="chart-wrap donut"><canvas id="chartActiveType" height="220"></canvas></div>
+        <div class="legend" id="legendActiveType"></div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Cores distribution -->
+    <div class="section-label">Compute Resources</div>
+    <div class="charts-row two">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">CPU Cores Distribution</div>
+          <div class="card-sub">Frequency of core counts across CPU nodes</div>
+        </div>
+        <div class="chart-wrap" style="height:220px"><canvas id="chartCores"></canvas></div>
+        <div class="cores-info" id="coresInfo"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Active Rate by Type</div>
+          <div class="card-sub">% of each type currently active</div>
+        </div>
+        <div class="chart-wrap" style="height:220px"><canvas id="chartActiveRate"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ROW 3: Leaderboard + GPU list -->
+    <div class="section-label">Node Intelligence</div>
+    <div class="charts-row two">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Top Compute Nodes</div>
+          <div class="card-sub">Highest core count miners on network</div>
+        </div>
+        <div class="leaderboard" id="leaderboard"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">GPU Nodes</div>
+          <div class="card-sub" id="gpuSubtitle">CUDA / QPU miners on network</div>
+        </div>
+        <div class="gpu-list-wrap">
+          <table class="gpu-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Node</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>IP</th>
+              </tr>
+            </thead>
+            <tbody id="gpuTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /analyticsContent -->
+</main>
+
+<script>
+const API = 'https://api.republicstats.xyz/api/quip/nodes';
+
+// Clock
+function tickClock() {
+  const now = new Date();
+  document.getElementById('navTime').textContent = 
+    'Updated: ' + now.toLocaleTimeString();
+}
+setInterval(tickClock, 1000); tickClock();
+
+// Chart defaults
+Chart.defaults.color = '#6b6b8a';
+Chart.defaults.borderColor = '#1e1e2e';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+const DONUT_OPTS = {
+  responsive: true,
+  maintainAspectRatio: true,
+  cutout: '68%',
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#16161f',
+      borderColor: '#252535',
+      borderWidth: 1,
+      padding: 10,
+      callbacks: {
+        label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${Math.round(ctx.raw/ctx.dataset.data.reduce((a,b)=>a+b,0)*100)}%)`
+      }
+    }
+  }
+};
+
+function makeLegend(containerId, labels, values, colors) {
+  const total = values.reduce((a,b)=>a+b,0);
+  const el = document.getElementById(containerId);
+  el.innerHTML = labels.map((l,i) => `
+    <div class="legend-item">
+      <div class="legend-left">
+        <div class="legend-dot" style="background:${colors[i]}"></div>
+        <span>${l}</span>
+      </div>
+      <span class="legend-val">${values[i].toLocaleString()} <span style="color:var(--muted);font-size:10px">(${total?Math.round(values[i]/total*100):0}%)</span></span>
+    </div>
+  `).join('');
+}
+
+function typeColor(t) {
+  if (t==='GPU') return '#22d3ee';
+  if (t==='QPU') return '#4ade80';
+  return '#f472b6';
+}
+
+async function loadAnalytics() {
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const nodes = data.nodes || data;
+
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('analyticsContent').style.display = 'block';
+    document.getElementById('lastUpdated').textContent =
+      'Last updated: ' + new Date().toLocaleTimeString() + ' · ' + nodes.length.toLocaleString() + ' nodes loaded';
+
+    processAndRender(nodes);
+
+  } catch(e) {
+    document.getElementById('loadingScreen').innerHTML = `
+      <div class="error-msg">
+        <strong>Failed to load data</strong>
+        ${e.message}<br><br>
+        <button onclick="loadAnalytics()" style="padding:8px 16px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:6px;cursor:pointer;font-family:inherit">Retry</button>
+      </div>`;
+  }
+}
+
+function processAndRender(nodes) {
+  // --- Classify ---
+  const now = Date.now();
+  const ACTIVE_MS = 15 * 60 * 1000;
+
+  let total = nodes.length, activeCount = 0, offlineCount = 0;
+  let gpuActive = 0, gpuOffline = 0;
+  let cpuActive = 0, cpuOffline = 0;
+  let qpuActive = 0, qpuOffline = 0;
+  const coresMap = {};
+  const gpuNodes = [];
+  const coreNodes = [];
+
+  nodes.forEach(n => {
+    const type = (n.type || 'CPU').toUpperCase();
+    const isGPU = type === 'GPU';
+    const isQPU = type === 'QPU';
+    const isCPU = !isGPU && !isQPU;
+
+    // Active check
+    let isActive = false;
+    if (n.active !== undefined) {
+      isActive = !!n.active;
+    } else if (n.last_seen) {
+      const ls = typeof n.last_seen === 'number' ? n.last_seen * 1000 : new Date(n.last_seen).getTime();
+      isActive = (now - ls) < ACTIVE_MS;
+    }
+
+    if (isActive) {
+      activeCount++;
+      if (isGPU) gpuActive++;
+      else if (isQPU) qpuActive++;
+      else cpuActive++;
+    } else {
+      offlineCount++;
+      if (isGPU) gpuOffline++;
+      else if (isQPU) qpuOffline++;
+      else cpuOffline++;
+    }
+
+    // Cores
+    if (isCPU && n.cores && n.cores > 0) {
+      const c = n.cores;
+      coresMap[c] = (coresMap[c] || 0) + 1;
+      coreNodes.push({ name: n.name || n.node_name || n.ip || 'Unknown', cores: c, type, active: isActive, ip: n.ip || '' });
+    }
+
+    // GPU list
+    if (isGPU || isQPU) {
+      gpuNodes.push({ name: n.name || n.node_name || n.ip || 'Unknown', type, active: isActive, ip: n.ip || '' });
+    }
+  });
+
+  // --- STAT CARDS ---
+  document.getElementById('sTotal').textContent = total.toLocaleString();
+  document.getElementById('sActive').textContent = activeCount.toLocaleString();
+  document.getElementById('sGpu').textContent = (gpuActive + gpuOffline + qpuActive + qpuOffline).toLocaleString();
+  document.getElementById('sCpu').textContent = (cpuActive + cpuOffline).toLocaleString();
+  document.getElementById('sOffline').textContent = offlineCount.toLocaleString();
+
+  // --- DONUT: Node by Type ---
+  const gpuTotal = gpuActive + gpuOffline;
+  const qpuTotal = qpuActive + qpuOffline;
+  const cpuTotal = cpuActive + cpuOffline;
+  const typeLabels = ['CPU', 'GPU', 'QPU'].filter((_,i) => [cpuTotal,gpuTotal,qpuTotal][i] > 0);
+  const typeValues = [cpuTotal, gpuTotal, qpuTotal].filter(v => v > 0);
+  const typeColors = ['#f472b6','#22d3ee','#4ade80'].filter((_,i) => [cpuTotal,gpuTotal,qpuTotal][i] > 0);
+
+  new Chart(document.getElementById('chartNodeType'), {
+    type: 'doughnut',
+    data: { labels: typeLabels, datasets: [{ data: typeValues, backgroundColor: typeColors, borderWidth: 2, borderColor: '#111118', hoverOffset: 4 }] },
+    options: DONUT_OPTS
+  });
+  makeLegend('legendNodeType', typeLabels, typeValues, typeColors);
+
+  // --- DONUT: Active vs Offline ---
+  new Chart(document.getElementById('chartActiveOffline'), {
+    type: 'doughnut',
+    data: { labels: ['Active', 'Offline'], datasets: [{ data: [activeCount, offlineCount], backgroundColor: ['#34d399','#334155'], borderWidth: 2, borderColor: '#111118', hoverOffset: 4 }] },
+    options: DONUT_OPTS
+  });
+  makeLegend('legendActiveOffline', ['Active', 'Offline'], [activeCount, offlineCount], ['#34d399','#475569']);
+
+  // --- DONUT: Active by Type ---
+  const atLabels = ['CPU Active', 'GPU Active', 'QPU Active'].filter((_,i)=>[cpuActive,gpuActive,qpuActive][i]>0);
+  const atValues = [cpuActive, gpuActive, qpuActive].filter(v=>v>0);
+  const atColors = ['#f472b6','#22d3ee','#4ade80'].filter((_,i)=>[cpuActive,gpuActive,qpuActive][i]>0);
+  new Chart(document.getElementById('chartActiveType'), {
+    type: 'doughnut',
+    data: { labels: atLabels, datasets: [{ data: atValues, backgroundColor: atColors, borderWidth: 2, borderColor: '#111118', hoverOffset: 4 }] },
+    options: DONUT_OPTS
+  });
+  makeLegend('legendActiveType', atLabels, atValues, atColors);
+
+  // --- BAR: Cores Distribution ---
+  const coresBuckets = {};
+  const BUCKETS = [[1,1],[2,2],[4,4],[6,6],[8,8],[12,12],[16,16],[24,24],[32,32],[48,48],[64,64],[96,200]];
+  const bucketLabels = ['1','2','4','6','8','12','16','24','32','48','64','96+'];
+  BUCKETS.forEach(([lo,hi],i) => {
+    coresBuckets[i] = 0;
+  });
+  Object.entries(coresMap).forEach(([c, cnt]) => {
+    const cores = parseInt(c);
+    for (let i = 0; i < BUCKETS.length; i++) {
+      if (cores >= BUCKETS[i][0] && cores <= BUCKETS[i][1]) {
+        coresBuckets[i] += cnt; break;
+      }
+    }
+  });
+  const coresData = Object.values(coresBuckets);
+  new Chart(document.getElementById('chartCores'), {
+    type: 'bar',
+    data: {
+      labels: bucketLabels,
+      datasets: [{
+        data: coresData,
+        backgroundColor: 'rgba(244,114,182,0.25)',
+        borderColor: '#f472b6',
+        borderWidth: 1.5,
+        borderRadius: 4,
+        hoverBackgroundColor: 'rgba(244,114,182,0.4)'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#16161f', borderColor: '#252535', borderWidth: 1 } },
+      scales: {
+        x: { grid: { color: '#1e1e2e' }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: '#1e1e2e' }, ticks: { font: { size: 11 } }, beginAtZero: true }
+      }
+    }
+  });
+
+  // Cores stats
+  const allCores = coreNodes.map(n=>n.cores);
+  if (allCores.length > 0) {
+    const maxC = Math.max(...allCores);
+    const avgC = Math.round(allCores.reduce((a,b)=>a+b,0)/allCores.length);
+    const medC = [...allCores].sort((a,b)=>a-b)[Math.floor(allCores.length/2)];
+    document.getElementById('coresInfo').innerHTML = `
+      <div class="cores-info-item"><div class="val">${maxC}</div><div class="lbl">Max Cores</div></div>
+      <div class="cores-info-item"><div class="val">${avgC}</div><div class="lbl">Avg Cores</div></div>
+      <div class="cores-info-item"><div class="val">${medC}</div><div class="lbl">Median</div></div>
+      <div class="cores-info-item"><div class="val">${allCores.length.toLocaleString()}</div><div class="lbl">w/ core data</div></div>
+    `;
+  }
+
+  // --- BAR: Active Rate by Type ---
+  const arLabels = ['CPU', 'GPU', 'QPU'];
+  const arActive = [cpuActive, gpuActive, qpuActive];
+  const arTotal = [cpuTotal, gpuTotal, qpuTotal];
+  const arRate = arLabels.map((_,i) => arTotal[i] > 0 ? Math.round(arActive[i]/arTotal[i]*100) : 0);
+
+  new Chart(document.getElementById('chartActiveRate'), {
+    type: 'bar',
+    data: {
+      labels: arLabels,
+      datasets: [
+        { label: 'Active %', data: arRate, backgroundColor: ['rgba(244,114,182,0.3)','rgba(34,211,238,0.3)','rgba(74,222,128,0.3)'], borderColor: ['#f472b6','#22d3ee','#4ade80'], borderWidth: 2, borderRadius: 6 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#16161f', borderColor: '#252535', borderWidth: 1, callbacks: { label: ctx => ` ${ctx.raw}% active` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 13, weight: '600' } } },
+        y: { grid: { color: '#1e1e2e' }, min: 0, max: 100, ticks: { callback: v => v+'%', font: { size: 11 } } }
+      }
+    }
+  });
+
+  // --- LEADERBOARD: Top by Cores ---
+  const topNodes = [...coreNodes].sort((a,b)=>b.cores-a.cores).slice(0,12);
+  const maxCores = topNodes[0]?.cores || 1;
+  const lb = document.getElementById('leaderboard');
+  const rankColors = ['gold','silver','bronze'];
+  lb.innerHTML = topNodes.map((n,i) => {
+    const barColor = typeColor(n.type);
+    const barPct = Math.round(n.cores/maxCores*100);
+    const displayName = n.name.length > 30 ? n.name.slice(0,28)+'…' : n.name;
+    return `
+      <div class="lb-row">
+        <span class="lb-rank ${rankColors[i]||''}">${i+1}</span>
+        <span class="lb-name" title="${n.name}">${displayName}</span>
+        <span class="lb-badge ${n.type}">${n.type}</span>
+        <span class="lb-cores">${n.cores}c</span>
+        <div class="lb-bar-wrap">
+          <div class="lb-bar">
+            <div class="lb-bar-fill" style="width:${barPct}%;background:${barColor}"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // --- GPU TABLE ---
+  document.getElementById('gpuSubtitle').textContent =
+    `${gpuNodes.length} GPU/QPU miners on network`;
+  const tbody = document.getElementById('gpuTableBody');
+  const gpuSorted = [...gpuNodes].sort((a,b) => (b.active?1:0)-(a.active?1:0));
+  tbody.innerHTML = gpuSorted.map((n,i) => {
+    const displayName = n.name.length > 28 ? n.name.slice(0,26)+'…' : n.name;
+    const statusClass = n.active ? 'active' : 'offline';
+    const statusText = n.active ? 'Active' : 'Offline';
+    const ipShort = n.ip.length > 22 ? n.ip.slice(0,20)+'…' : n.ip;
+    return `
+      <tr>
+        <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:11px">${i+1}</td>
+        <td title="${n.name}">${displayName}</td>
+        <td><span class="lb-badge ${n.type}">${n.type}</span></td>
+        <td><span class="status-dot ${statusClass}"></span>${statusText}</td>
+        <td><span class="ip-pill" title="${n.ip}">${ipShort}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+loadAnalytics();
+// Auto-refresh every 60s
+setInterval(loadAnalytics, 60000);
+</script>
+</body>
+</html>
