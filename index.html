@@ -5,153 +5,141 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QuipStats — Live Network</title>
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --border: #1e1e2e;
-    --text: #e2e2f0;
-    --muted: #6b6b8a;
-    --accent: #7c6aff;
-    --green: #1db96a;
-    --amber: #f5a623;
-    --red: #e24b4b;
-    --cpu: #378add;
-    --gpu: #1db96a;
-    --qpu: #a78bfa;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; min-height: 100vh; }
+:root {
+  --bg: #0a0a0f; --surface: #111118; --border: #1e1e2e;
+  --text: #e2e2f0; --muted: #6b6b8a; --accent: #7c6aff;
+  --green: #1db96a; --red: #e24b4b; --cpu: #378add; --gpu: #1db96a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira Code',monospace; font-size: 14px; min-height: 100vh; }
 
-  header { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-  .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-  .logo span { color: var(--accent); }
-  .live-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+header { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.logo { font-size: 18px; font-weight: 700; }
+.logo span { color: var(--accent); }
+.live-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-  .container { max-width: 1300px; margin: 0 auto; padding: 1.5rem 2rem; }
+.container { max-width: 1300px; margin: 0 auto; padding: 1.5rem 2rem; }
 
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-  .stat-card .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
-  .stat-card .value { font-size: 28px; font-weight: 700; }
-  .stat-card .sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
-  .v-white { color: var(--text); }
-  .v-green { color: var(--green); }
-  .v-cpu { color: var(--cpu); }
-  .v-gpu { color: var(--gpu); }
-  .v-red { color: var(--red); }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat-card .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+.stat-card .val { font-size: 28px; font-weight: 700; }
+.stat-card .sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
-  .controls { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
-  .controls input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-family: inherit; font-size: 13px; outline: none; flex: 1; min-width: 200px; transition: border-color .2s; }
-  .controls input:focus { border-color: var(--accent); }
-  .controls input::placeholder { color: var(--muted); }
-  .filter-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--muted); font-family: inherit; font-size: 12px; cursor: pointer; transition: all .2s; white-space: nowrap; }
-  .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); }
-  .filter-btn.active { background: rgba(124,106,255,.1); }
+.controls { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+.controls input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-family: inherit; font-size: 13px; outline: none; flex: 1; min-width: 200px; }
+.controls input:focus { border-color: var(--accent); }
+.controls input::placeholder { color: var(--muted); }
+.fbtn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--muted); font-family: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.fbtn.on, .fbtn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,106,255,.1); }
 
-  .section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.sec-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.node-table { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.tbl-head { display: grid; grid-template-columns: 40px 1fr 80px 90px 80px 100px; gap: 8px; padding: 10px 16px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
+.nrow { display: grid; grid-template-columns: 40px 1fr 80px 90px 80px 100px; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; user-select: none; }
+.nrow:last-child { border-bottom: none; }
+.nrow:hover { background: rgba(124,106,255,.07); }
+.nrow:active { background: rgba(124,106,255,.15); }
+.nname { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.nname.me { color: var(--accent); }
+.tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; pointer-events: none; }
+.tag.GPU { background: rgba(29,185,106,.15); color: var(--gpu); }
+.tag.CPU { background: rgba(55,138,221,.15); color: var(--cpu); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; pointer-events: none; }
+.dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.off { background: var(--red); }
+.ipt { font-size: 11px; color: var(--muted); pointer-events: none; }
 
-  .node-table { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .node-table-header { display: grid; grid-template-columns: 40px 1fr 80px 90px 80px 100px; gap: 8px; padding: 10px 16px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
-  .node-row { display: grid; grid-template-columns: 40px 1fr 80px 90px 80px 100px; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); align-items: center; transition: background .15s; cursor: pointer; }
-  .node-row:last-child { border-bottom: none; }
-  .node-row:hover { background: rgba(124,106,255,.05); }
-  .node-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .node-name.me { color: var(--accent); }
-  .tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
-  .tag.GPU { background: rgba(29,185,106,.15); color: var(--gpu); }
-  .tag.CPU { background: rgba(55,138,221,.15); color: var(--cpu); }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .status-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .status-dot.offline { background: var(--red); }
-  .ip-text { font-size: 11px; color: var(--muted); }
-  .cores-text { font-size: 12px; }
+.pgn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 1rem; }
+.pbtn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; color: var(--muted); font-family: inherit; font-size: 12px; cursor: pointer; }
+.pbtn:hover { border-color: var(--accent); color: var(--accent); }
+.pbtn:disabled { opacity: .3; cursor: not-allowed; }
+.pginfo { font-size: 12px; color: var(--muted); }
+.empty { text-align: center; padding: 3rem; color: var(--muted); }
 
-  .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 1rem; }
-  .page-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; color: var(--muted); font-family: inherit; font-size: 12px; cursor: pointer; transition: all .2s; }
-  .page-btn:hover, .page-btn.active { border-color: var(--accent); color: var(--accent); }
-  .page-btn:disabled { opacity: .3; cursor: not-allowed; }
-  .page-info { font-size: 12px; color: var(--muted); }
+footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 2rem; }
+footer a { color: var(--accent); text-decoration: none; }
 
-  .loading { text-align: center; padding: 3rem; color: var(--muted); }
-  footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 2rem; }
-  footer a { color: var(--accent); text-decoration: none; }
+/* MODAL */
+#overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.75); z-index: 999;
+  align-items: center; justify-content: center;
+  padding: 1rem; backdrop-filter: blur(3px);
+}
+#overlay.show { display: flex; }
+#mbox {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; max-width: 620px; width: 100%;
+  max-height: 90vh; overflow-y: auto; padding: 1.5rem;
+  position: relative;
+}
+#mclose {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; color: var(--muted);
+  font-size: 22px; cursor: pointer; line-height: 1; padding: 4px 8px;
+}
+#mclose:hover { color: var(--text); }
+.mhead { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; gap: 10px; }
+.mname { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.mname.me { color: var(--accent); }
+.msub { font-size: 11px; color: var(--muted); word-break: break-all; margin-top: 4px; }
+.mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+.mcard { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.mcard .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.mcard .val { font-size: 24px; font-weight: 700; }
+.mcard .sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.mstatus { font-size: 12px; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.logs-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.logs-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; max-height: 220px; overflow-y: auto; }
+.log-line { padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; font-size: 11px; }
+.log-line:last-child { border-bottom: none; }
+.log-t { color: var(--accent); flex-shrink: 0; font-weight: 600; }
+.log-m { color: var(--muted); word-break: break-all; line-height: 1.5; }
+.mnote { padding: 10px 12px; color: var(--muted); font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
 
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(3px); }
-  .modal-overlay.open { display: flex; }
-  .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; max-width: 620px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 1.5rem; position: relative; }
-  .modal-close { position: absolute; top: 12px; right: 14px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; padding: 4px 8px; border-radius: 6px; transition: color .2s; }
-  .modal-close:hover { color: var(--text); }
-  .modal-header-node { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; gap: 10px; }
-  .modal-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .modal-name.accent { color: var(--accent); }
-  .modal-sub { font-size: 11px; color: var(--muted); word-break: break-all; }
-  .modal-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1rem; }
-  .modal-stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-  .modal-stat .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
-  .modal-stat .value { font-size: 24px; font-weight: 700; }
-  .modal-stat .sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
-  .modal-status { font-size: 12px; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
-  .modal-logs-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-  .modal-logs { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; max-height: 220px; overflow-y: auto; font-size: 11px; }
-  .log-line { padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
-  .log-line:last-child { border-bottom: none; }
-  .log-time { color: var(--accent); flex-shrink: 0; font-weight: 600; }
-  .log-msg { color: var(--muted); word-break: break-all; line-height: 1.5; }
-  .modal-info-note { padding: 10px 12px; color: var(--muted); font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; }
-
-  @media (max-width: 700px) {
-    .node-table-header, .node-row { grid-template-columns: 30px 1fr 60px 70px; }
-    .node-table-header > *:nth-child(n+5), .node-row > *:nth-child(n+5) { display: none; }
-    .container { padding: 1rem; }
-    .modal-stats-grid { grid-template-columns: 1fr 1fr; }
-  }
+@media (max-width: 700px) {
+  .tbl-head, .nrow { grid-template-columns: 30px 1fr 60px 70px; }
+  .tbl-head > *:nth-child(n+5), .nrow > *:nth-child(n+5) { display: none; }
+  .container { padding: 1rem; }
+}
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">Quip<span>Stats</span> <span style="font-size:12px;color:var(--muted);font-weight:400">Live</span></div>
-  <div class="live-badge">
-    <div class="live-dot"></div>
-    <span id="updated">Loading...</span>
-  </div>
+  <div class="live-badge"><div class="live-dot"></div><span id="upd">Loading...</span></div>
 </header>
 
 <div class="container">
-  <div class="stats-grid" id="statsGrid">
-    <div class="stat-card"><div class="label">Total Nodes</div><div class="value v-white">—</div></div>
-    <div class="stat-card"><div class="label">Active Now</div><div class="value v-green">—</div></div>
-    <div class="stat-card"><div class="label">GPU Active</div><div class="value v-gpu">—</div></div>
-    <div class="stat-card"><div class="label">CPU Active</div><div class="value v-cpu">—</div></div>
-    <div class="stat-card"><div class="label">Offline</div><div class="value v-red">—</div></div>
+  <div class="stats-grid" id="sgrid">
+    <div class="stat-card"><div class="lbl">Total Nodes</div><div class="val" style="color:var(--text)">—</div></div>
+    <div class="stat-card"><div class="lbl">Active Now</div><div class="val" style="color:var(--green)">—</div></div>
+    <div class="stat-card"><div class="lbl">GPU Active</div><div class="val" style="color:var(--gpu)">—</div></div>
+    <div class="stat-card"><div class="lbl">CPU Active</div><div class="val" style="color:var(--cpu)">—</div></div>
+    <div class="stat-card"><div class="lbl">Offline</div><div class="val" style="color:var(--red)">—</div></div>
   </div>
 
   <div class="controls">
-    <input type="text" id="searchInput" placeholder="Search node name or IP..." oninput="filterAndRender()" />
-    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-    <button class="filter-btn" onclick="setFilter('active', this)">Active</button>
-    <button class="filter-btn" onclick="setFilter('gpu', this)">GPU</button>
-    <button class="filter-btn" onclick="setFilter('cpu', this)">CPU</button>
-    <button class="filter-btn" onclick="setFilter('offline', this)">Offline</button>
+    <input id="srch" type="text" placeholder="Search node name or IP..." />
+    <button class="fbtn on"  id="f-all">All</button>
+    <button class="fbtn"     id="f-active">Active</button>
+    <button class="fbtn"     id="f-gpu">GPU</button>
+    <button class="fbtn"     id="f-cpu">CPU</button>
+    <button class="fbtn"     id="f-offline">Offline</button>
   </div>
 
-  <div class="section-title" id="tableTitle">All Nodes</div>
+  <div class="sec-title" id="ttl">All Nodes</div>
   <div class="node-table">
-    <div class="node-table-header">
-      <div></div>
-      <div>Node</div>
-      <div>Type</div>
-      <div>Resources</div>
-      <div>Status</div>
-      <div>IP</div>
+    <div class="tbl-head">
+      <div></div><div>Node</div><div>Type</div><div>Resources</div><div>Status</div><div>IP</div>
     </div>
-    <div id="nodeList"><div class="loading">Fetching live data...</div></div>
+    <div id="nlist"><div class="empty">Fetching live data...</div></div>
   </div>
-
-  <div class="pagination" id="pagination"></div>
+  <div class="pgn" id="pgn"></div>
 </div>
 
 <footer>
@@ -161,257 +149,250 @@
 </footer>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="nodeModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div id="modalBody"></div>
+<div id="overlay">
+  <div id="mbox">
+    <button id="mclose">✕</button>
+    <div id="mbody"><div class="empty">Loading...</div></div>
   </div>
 </div>
 
 <script>
-const API        = 'https://api.republicstats.xyz/api/quip/nodes';
-const LOCAL_API  = 'https://api.republicstats.xyz/api/quip/node/local';
-const MY_WALLET  = '0x3bc6348e';
-const PER_PAGE   = 50;
+var API_NODES = 'https://api.republicstats.xyz/api/quip/nodes';
+var API_LOCAL = 'https://api.republicstats.xyz/api/quip/node/local';
+var PER_PAGE  = 50;
 
-let allNodes = [], filtered = [], currentPage = 1, currentFilter = 'all';
-const nodeStore = new Map();
+var allNodes = [];
+var filtered = [];
+var curPage  = 1;
+var curFilt  = 'all';
 
-// ───── DATA FETCH ─────
-async function fetchData() {
-  try {
-    const r = await fetch(API);
-    const data = await r.json();
-    allNodes = data.nodes || [];
+// ── FETCH ──
+function fetchData() {
+  fetch(API_NODES)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      allNodes = data.nodes || [];
+      document.getElementById('upd').textContent = 'Updated: ' + new Date().toLocaleTimeString();
 
-    document.getElementById('updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+      var active  = 0, gpu = 0, cpu = 0;
+      for (var i = 0; i < allNodes.length; i++) {
+        var n = allNodes[i];
+        if (n.active) { active++; if (n.type==='GPU') gpu++; else cpu++; }
+      }
+      var offline = allNodes.length - active;
 
-    const active  = allNodes.filter(n => n.active).length;
-    const gpu     = allNodes.filter(n => n.active && n.type === 'GPU').length;
-    const cpu     = allNodes.filter(n => n.active && n.type === 'CPU').length;
-    const offline = allNodes.length - active;
+      document.getElementById('sgrid').innerHTML =
+        mkCard('Total Nodes', allNodes.length.toLocaleString(), 'ever seen',   'var(--text)')  +
+        mkCard('Active Now',  active.toLocaleString(),          'last 15 min', 'var(--green)') +
+        mkCard('GPU Active',  gpu,                              'CUDA nodes',  'var(--gpu)')   +
+        mkCard('CPU Active',  cpu,                              'CPU nodes',   'var(--cpu)')   +
+        mkCard('Offline',     offline.toLocaleString(),         '>15 min ago', 'var(--red)');
 
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="stat-card"><div class="label">Total Nodes</div><div class="value v-white">${allNodes.length.toLocaleString()}</div><div class="sub">ever seen</div></div>
-      <div class="stat-card"><div class="label">Active Now</div><div class="value v-green">${active.toLocaleString()}</div><div class="sub">last 15 min</div></div>
-      <div class="stat-card"><div class="label">GPU Active</div><div class="value v-gpu">${gpu}</div><div class="sub">CUDA nodes</div></div>
-      <div class="stat-card"><div class="label">CPU Active</div><div class="value v-cpu">${cpu}</div><div class="sub">CPU nodes</div></div>
-      <div class="stat-card"><div class="label">Offline</div><div class="value v-red">${offline.toLocaleString()}</div><div class="sub">>15 min ago</div></div>`;
+      applyFilter();
+    })
+    .catch(function(err) {
+      document.getElementById('nlist').innerHTML =
+        '<div class="empty" style="color:var(--red)">Error: ' + err.message + '</div>';
+    });
+}
 
-    filterAndRender();
-  } catch(e) {
-    document.getElementById('nodeList').innerHTML =
-      `<div class="loading" style="color:var(--red)">Failed to fetch: ${e.message}</div>`;
+function mkCard(l, v, s, c) {
+  return '<div class="stat-card"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';
+}
+
+// ── FILTER BUTTONS ──
+var filterBtns = ['all','active','gpu','cpu','offline'];
+for (var fi = 0; fi < filterBtns.length; fi++) {
+  (function(f) {
+    document.getElementById('f-'+f).addEventListener('click', function() {
+      curFilt = f; curPage = 1;
+      for (var j = 0; j < filterBtns.length; j++) {
+        document.getElementById('f-'+filterBtns[j]).classList.remove('on');
+      }
+      this.classList.add('on');
+      applyFilter();
+    });
+  })(filterBtns[fi]);
+}
+
+document.getElementById('srch').addEventListener('input', function() {
+  curPage = 1;
+  applyFilter();
+});
+
+function applyFilter() {
+  var q = document.getElementById('srch').value.toLowerCase();
+  filtered = [];
+  for (var i = 0; i < allNodes.length; i++) {
+    var n = allNodes[i];
+    var matchQ = !q || n.name.toLowerCase().indexOf(q) >= 0 || n.ip.toLowerCase().indexOf(q) >= 0;
+    var matchF = curFilt==='all'     ? true :
+                 curFilt==='active'  ? n.active :
+                 curFilt==='gpu'     ? (n.active && n.type==='GPU') :
+                 curFilt==='cpu'     ? (n.active && n.type==='CPU') :
+                 curFilt==='offline' ? !n.active : true;
+    if (matchQ && matchF) filtered.push(n);
   }
+  var labels = {all:'All Nodes',active:'Active Nodes',gpu:'Active GPU Nodes',cpu:'Active CPU Nodes',offline:'Offline Nodes'};
+  document.getElementById('ttl').textContent = labels[curFilt] + ' (' + filtered.length.toLocaleString() + ')';
+  renderRows();
+  renderPgn();
 }
 
-// ───── FILTER ─────
-function setFilter(f, btn) {
-  currentFilter = f; currentPage = 1;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  filterAndRender();
+// ── RENDER ROWS ──
+function isMe(n) {
+  return n.name.toLowerCase().indexOf('darkseid') >= 0;
 }
 
-function filterAndRender() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  filtered = allNodes.filter(n => {
-    const matchSearch = !q || n.name.toLowerCase().includes(q) || n.ip.toLowerCase().includes(q);
-    const matchFilter =
-      currentFilter === 'all'     ? true :
-      currentFilter === 'active'  ? n.active :
-      currentFilter === 'gpu'     ? (n.active && n.type === 'GPU') :
-      currentFilter === 'cpu'     ? (n.active && n.type === 'CPU') :
-      currentFilter === 'offline' ? !n.active : true;
-    return matchSearch && matchFilter;
-  });
-
-  const labels = { all:'All Nodes', active:'Active Nodes', gpu:'Active GPU Nodes', cpu:'Active CPU Nodes', offline:'Offline Nodes' };
-  document.getElementById('tableTitle').textContent = `${labels[currentFilter]} (${filtered.length.toLocaleString()})`;
-  renderPage();
-  renderPagination();
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ───── RENDER TABLE ─────
-function isMyNode(n) {
-  return n.name.toLowerCase().includes('darkseid') ||
-         n.name.includes(MY_WALLET) ||
-         (n.full_id && n.full_id.includes(MY_WALLET));
-}
+function renderRows() {
+  var start = (curPage - 1) * PER_PAGE;
+  var end   = Math.min(start + PER_PAGE, filtered.length);
 
-function renderPage() {
-  const start = (currentPage - 1) * PER_PAGE;
-  const page  = filtered.slice(start, start + PER_PAGE);
-
-  if (!page.length) {
-    document.getElementById('nodeList').innerHTML = '<div class="loading">No nodes found</div>';
+  if (filtered.length === 0) {
+    document.getElementById('nlist').innerHTML = '<div class="empty">No nodes found</div>';
     return;
   }
 
-  const html = page.map((n, i) => {
-    const me        = isMyNode(n);
-    const res       = n.type === 'GPU' ? `${n.gpus}GPU+${n.cpus}C` : (n.cpus > 0 ? `${n.cpus} Cores` : '—');
-    const ipDisplay = n.ip === 'local' ? '🏠 Your Node' : n.ip;
-    const rank      = start + i + 1;
-    const storeKey = 'node_' + (start + i);
-    nodeStore.set(storeKey, n);
-    return `
-      <div class="node-row" data-key="${storeKey}">
-        <div style="font-size:11px;color:var(--muted)">${rank}</div>
-        <div class="node-name ${me ? 'me' : ''}" title="${n.name}">${me ? '⚡ ' : ''}${n.name}</div>
-        <div><span class="tag ${n.type}">${n.type}</span></div>
-        <div class="cores-text">${res}</div>
-        <div><span class="status-dot ${n.active ? 'active' : 'offline'}"></span></div>
-        <div class="ip-text">${ipDisplay}</div>
-      </div>`;
-  }).join('');
+  var html = '';
+  for (var i = start; i < end; i++) {
+    var n   = filtered[i];
+    var me  = isMe(n);
+    var res = n.type==='GPU' ? (n.gpus+'GPU+'+n.cpus+'C') : (n.cpus > 0 ? n.cpus+' Cores' : '—');
+    var ip  = n.ip === 'local' ? '🏠 Your Node' : n.ip;
 
-  document.getElementById('nodeList').innerHTML = html;
+    html += '<div class="nrow" data-idx="'+i+'">' +
+      '<div style="font-size:11px;color:var(--muted);pointer-events:none">'+(i+1)+'</div>' +
+      '<div class="nname'+(me?' me':'')+'" title="'+esc(n.name)+'">'+(me?'⚡ ':'')+esc(n.name)+'</div>' +
+      '<div><span class="tag '+n.type+'">'+n.type+'</span></div>' +
+      '<div style="font-size:12px;pointer-events:none">'+res+'</div>' +
+      '<div><span class="dot '+(n.active?'on':'off')+'"></span></div>' +
+      '<div class="ipt">'+esc(ip)+'</div>' +
+    '</div>';
+  }
+
+  document.getElementById('nlist').innerHTML = html;
 }
 
-// ───── PAGINATION ─────
-function renderPagination() {
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  if (totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
-  document.getElementById('pagination').innerHTML =
-    `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>` +
-    `<span class="page-info">Page ${currentPage} of ${totalPages}</span>` +
-    `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>`;
-}
-
-function goPage(p) { currentPage = p; renderPage(); renderPagination(); window.scrollTo(0,0); }
-
-// ───── MODAL ─────
-async function openModal(key) {
-  const node  = nodeStore.get(key);
-  if (!node) return;
-  const me    = isMyNode(node);
-  const modal = document.getElementById('nodeModal');
-  const body  = document.getElementById('modalBody');
-
-  modal.classList.add('open');
-  body.innerHTML = '<div class="loading">Fetching node stats...</div>';
-
-  if (me) {
-    // ── LOCAL NODE: rich stats from /api/quip/node/local ──
-    try {
-      const r = await fetch(LOCAL_API);
-      const d = await r.json();
-      const lastSeen = d.last_seen ? new Date(d.last_seen * 1000).toLocaleTimeString() : '—';
-      const logsHtml = (d.recent_logs || []).slice().reverse().map(l =>
-        `<div class="log-line"><span class="log-time">${l.time}</span><span class="log-msg">${escHtml(l.msg)}</span></div>`
-      ).join('') || '<span style="color:var(--muted)">No logs yet</span>';
-
-      body.innerHTML = `
-        <div class="modal-header-node">
-          <div>
-            <div class="modal-name accent">⚡ ${escHtml(d.name)}</div>
-            <div class="modal-sub">${escHtml(d.full_id)}</div>
-          </div>
-          <span class="tag CPU" style="align-self:flex-start">${d.type} · ${d.version}</span>
-        </div>
-
-        <div class="modal-stats-grid">
-          <div class="modal-stat">
-            <div class="label">Blocks Mined</div>
-            <div class="value v-white">${d.blocks_mined}</div>
-            <div class="sub">avg ${d.avg_block_time}s / block</div>
-          </div>
-          <div class="modal-stat">
-            <div class="label">Best Energy</div>
-            <div class="value v-gpu">${d.best_energy ?? '—'}</div>
-            <div class="sub">lower = better</div>
-          </div>
-          <div class="modal-stat">
-            <div class="label">CPU Miners</div>
-            <div class="value v-cpu">${d.active_miners}</div>
-            <div class="sub">active workers</div>
-          </div>
-          <div class="modal-stat">
-            <div class="label">Uptime</div>
-            <div class="value v-green">${d.uptime_pct}%</div>
-            <div class="sub">${d.version}</div>
-          </div>
-        </div>
-
-        <div class="modal-status">
-          <span class="status-dot ${d.active ? 'active' : 'offline'}"></span>
-          <span style="color:${d.active ? 'var(--green)' : 'var(--red)'}">
-            ${d.active ? 'Online' : 'Offline'}
-          </span>
-          &nbsp;·&nbsp; Last seen: ${lastSeen}
-        </div>
-
-        <div class="modal-logs-title">Recent Logs</div>
-        <div class="modal-logs">${logsHtml}</div>`;
-    } catch(e) {
-      body.innerHTML = `<div style="color:var(--red);padding:1rem">Failed to load: ${e.message}</div>`;
+// ── CLICK HANDLER ──
+document.getElementById('nlist').addEventListener('click', function(e) {
+  var el = e.target;
+  // Walk up to find .nrow
+  while (el && el !== this) {
+    if (el.classList && el.classList.contains('nrow')) {
+      var idx = parseInt(el.getAttribute('data-idx'), 10);
+      if (!isNaN(idx) && filtered[idx]) {
+        openModal(filtered[idx]);
+      }
+      return;
     }
+    el = el.parentNode;
+  }
+});
 
+// ── PAGINATION ──
+function renderPgn() {
+  var total = Math.ceil(filtered.length / PER_PAGE);
+  if (total <= 1) { document.getElementById('pgn').innerHTML = ''; return; }
+  document.getElementById('pgn').innerHTML =
+    '<button class="pbtn" '+(curPage===1?'disabled':'')+' onclick="goPage('+(curPage-1)+')">← Prev</button>' +
+    '<span class="pginfo">Page '+curPage+' of '+total+'</span>' +
+    '<button class="pbtn" '+(curPage===total?'disabled':'')+' onclick="goPage('+(curPage+1)+')">Next →</button>';
+}
+
+function goPage(p) { curPage = p; renderRows(); renderPgn(); window.scrollTo(0,0); }
+
+// ── MODAL ──
+function openModal(node) {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('mbody').innerHTML = '<div class="empty">Loading...</div>';
+
+  if (isMe(node)) {
+    fetch(API_LOCAL)
+      .then(function(r) { return r.json(); })
+      .then(function(d) { showLocalModal(d); })
+      .catch(function(err) {
+        document.getElementById('mbody').innerHTML =
+          '<div style="color:var(--red);padding:1rem">Error: ' + err.message + '</div>';
+      });
   } else {
-    // ── REMOTE NODE: basic info ──
-    const lastSeen  = node.last_seen ? new Date(node.last_seen * 1000).toLocaleTimeString() : '—';
-    const res       = node.type === 'GPU'
-      ? `${node.gpus} GPU + ${node.cpus} Cores`
-      : `${node.cpus || '—'} CPU Cores`;
-
-    body.innerHTML = `
-      <div class="modal-header-node">
-        <div>
-          <div class="modal-name">${escHtml(node.name)}</div>
-          <div class="modal-sub">${node.ip}</div>
-        </div>
-        <span class="tag ${node.type}" style="align-self:flex-start">${node.type}</span>
-      </div>
-
-      <div class="modal-stats-grid">
-        <div class="modal-stat">
-          <div class="label">Resources</div>
-          <div class="value v-cpu" style="font-size:20px">${res}</div>
-        </div>
-        <div class="modal-stat">
-          <div class="label">Status</div>
-          <div class="value" style="font-size:20px;color:${node.active ? 'var(--green)' : 'var(--red)'}">
-            ${node.active ? 'Online' : 'Offline'}
-          </div>
-        </div>
-        <div class="modal-stat">
-          <div class="label">Last Seen</div>
-          <div class="value v-white" style="font-size:18px">${lastSeen}</div>
-        </div>
-        <div class="modal-stat">
-          <div class="label">Node Type</div>
-          <div class="value v-white" style="font-size:20px">${node.type}</div>
-        </div>
-      </div>
-
-      <div class="modal-info-note">
-        ℹ️ Detailed mining stats (blocks, energy, logs) are only available for locally monitored nodes.
-      </div>`;
+    showRemoteModal(node);
   }
 }
 
+function showLocalModal(d) {
+  var lastSeen = d.last_seen ? new Date(d.last_seen * 1000).toLocaleTimeString() : '—';
+  var logs = (d.recent_logs || []).slice().reverse();
+  var logsHtml = '';
+  for (var i = 0; i < logs.length; i++) {
+    logsHtml += '<div class="log-line"><span class="log-t">'+esc(logs[i].time)+'</span><span class="log-m">'+esc(logs[i].msg)+'</span></div>';
+  }
+  if (!logsHtml) logsHtml = '<span style="color:var(--muted)">No logs</span>';
+
+  document.getElementById('mbody').innerHTML =
+    '<div class="mhead">' +
+      '<div>' +
+        '<div class="mname me">⚡ '+esc(d.name)+'</div>' +
+        '<div class="msub">'+esc(d.full_id)+'</div>' +
+      '</div>' +
+      '<span class="tag CPU" style="flex-shrink:0">'+esc(d.type)+' · '+esc(d.version)+'</span>' +
+    '</div>' +
+    '<div class="mgrid">' +
+      mkMcard('Blocks Mined', d.blocks_mined,      'avg '+d.avg_block_time+'s / block', 'var(--text)')  +
+      mkMcard('Best Energy',  d.best_energy||'—',   'lower = better',                   'var(--gpu)')   +
+      mkMcard('CPU Miners',   d.active_miners,      'active workers',                   'var(--cpu)')   +
+      mkMcard('Uptime',       d.uptime_pct+'%',     d.version,                          'var(--green)') +
+    '</div>' +
+    '<div class="mstatus">' +
+      '<span class="dot '+(d.active?'on':'off')+'"></span>' +
+      '<span style="color:'+(d.active?'var(--green)':'var(--red)')+'"> '+(d.active?'Online':'Offline')+'</span>' +
+      '<span style="color:var(--muted)"> · Last seen: '+lastSeen+'</span>' +
+    '</div>' +
+    '<div class="logs-title">Recent Logs</div>' +
+    '<div class="logs-box">'+logsHtml+'</div>';
+}
+
+function showRemoteModal(n) {
+  var lastSeen = n.last_seen ? new Date(n.last_seen * 1000).toLocaleTimeString() : '—';
+  var res = n.type==='GPU' ? (n.gpus+' GPU + '+n.cpus+' Cores') : ((n.cpus||'—')+' CPU Cores');
+
+  document.getElementById('mbody').innerHTML =
+    '<div class="mhead">' +
+      '<div>' +
+        '<div class="mname">'+esc(n.name)+'</div>' +
+        '<div class="msub">'+esc(n.ip)+'</div>' +
+      '</div>' +
+      '<span class="tag '+n.type+'" style="flex-shrink:0">'+n.type+'</span>' +
+    '</div>' +
+    '<div class="mgrid">' +
+      mkMcard('Resources', res,                    '',  'var(--cpu)')  +
+      mkMcard('Status',    n.active?'Online':'Offline', '', n.active?'var(--green)':'var(--red)') +
+      mkMcard('Last Seen', lastSeen,               '',  'var(--text)') +
+      mkMcard('Type',      n.type,                 '',  'var(--text)') +
+    '</div>' +
+    '<div class="mnote">ℹ️ Detailed mining stats available only for locally monitored nodes.</div>';
+}
+
+function mkMcard(l, v, s, c) {
+  return '<div class="mcard"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+esc(String(v))+'</div>'+(s?'<div class="sub">'+s+'</div>':'')+'</div>';
+}
+
 function closeModal() {
-  document.getElementById('nodeModal').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-function escHtml(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-// ───── EVENT DELEGATION FOR NODE CLICKS ─────
-document.getElementById('nodeList').addEventListener('click', function(e) {
-  const row = e.target.closest('.node-row');
-  if (!row) return;
-  const key = row.dataset.key;
-  if (key) openModal(key);
+document.getElementById('mclose').addEventListener('click', closeModal);
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
 });
 
-// ───── INIT ─────
+// ── START ──
 fetchData();
 setInterval(fetchData, 30000);
 </script>
