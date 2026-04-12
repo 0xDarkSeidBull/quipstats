@@ -252,9 +252,9 @@ function renderPage() {
     const res       = n.type === 'GPU' ? `${n.gpus}GPU+${n.cpus}C` : (n.cpus > 0 ? `${n.cpus} Cores` : '—');
     const ipDisplay = n.ip === 'local' ? '🏠 Your Node' : n.ip;
     const rank      = start + i + 1;
-    const nodeJson  = encodeURIComponent(JSON.stringify(n));
+    const globalIdx = start + i;
     return `
-      <div class="node-row" onclick="openModal('${nodeJson}')">
+      <div class="node-row" onclick="openModal(${globalIdx})">
         <div style="font-size:11px;color:var(--muted)">${rank}</div>
         <div class="node-name ${me ? 'me' : ''}" title="${n.name}">${me ? '⚡ ' : ''}${n.name}</div>
         <div><span class="tag ${n.type}">${n.type}</span></div>
@@ -280,8 +280,8 @@ function renderPagination() {
 function goPage(p) { currentPage = p; renderPage(); renderPagination(); window.scrollTo(0,0); }
 
 // ───── MODAL ─────
-async function openModal(nodeEnc) {
-  const node  = JSON.parse(decodeURIComponent(nodeEnc));
+async function openModal(idx) {
+  const node  = filtered[idx];
   const me    = isMyNode(node);
   const modal = document.getElementById('nodeModal');
   const body  = document.getElementById('modalBody');
