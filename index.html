@@ -212,7 +212,7 @@ function renderPage() {
   const html = page.map((n, i) => {
     const isMe = n.name.toLowerCase().includes('darkseid') || n.name.includes(MY_WALLET);
     const res = n.type === 'GPU' ? `${n.gpus}GPU+${n.cpus}C` : `${n.cpus > 0 ? n.cpus + ' Cores' : '—'}`;
-    const ipDisplay = n.ip === 'local' ? '🏠 local node' : n.ip;
+    const ipDisplay = n.ip === 'local' ? '🏠 Your Node' : n.ip;
     const rank = start + i + 1;
     return `
       <div class="node-row">
