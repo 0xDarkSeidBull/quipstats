@@ -262,7 +262,7 @@ function renderRows() {
     var n   = filtered[i];
     var me  = isMe(n);
     var res = n.type==='GPU' ? (n.gpus+'GPU+'+n.cpus+'C') : (n.cpus > 0 ? n.cpus+' Cores' : '—');
-    var ip  = n.ip === 'local' ? '🏠 Your Node' : n.ip;
+    var ip  = n.ip === 'local' ? 'DarkSeidBull Node' : n.ip;
 
     html += '<div class="nrow" data-idx="'+i+'">' +
       '<div style="font-size:11px;color:var(--muted);pointer-events:none">'+(i+1)+'</div>' +
