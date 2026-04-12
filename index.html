@@ -254,7 +254,7 @@ function renderPage() {
     const rank      = start + i + 1;
     const globalIdx = start + i;
     return `
-      <div class="node-row" onclick="openModal(${globalIdx})">
+      <div class="node-row" data-idx="${globalIdx}">
         <div style="font-size:11px;color:var(--muted)">${rank}</div>
         <div class="node-name ${me ? 'me' : ''}" title="${n.name}">${me ? '⚡ ' : ''}${n.name}</div>
         <div><span class="tag ${n.type}">${n.type}</span></div>
@@ -399,6 +399,14 @@ function escHtml(s) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
+// ───── EVENT DELEGATION FOR NODE CLICKS ─────
+document.getElementById('nodeList').addEventListener('click', function(e) {
+  const row = e.target.closest('.node-row');
+  if (!row) return;
+  const idx = parseInt(row.dataset.idx);
+  if (!isNaN(idx)) openModal(idx);
+});
 
 // ───── INIT ─────
 fetchData();
