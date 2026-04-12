@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuipStats — Network Dashboard</title>
+<title>QuipStats — Live Network</title>
 <style>
   :root {
     --bg: #0a0a0f;
@@ -22,73 +22,65 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; min-height: 100vh; }
 
-  header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  header { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
   .live-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-  .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  .container { max-width: 1300px; margin: 0 auto; padding: 1.5rem 2rem; }
 
-  .search-bar { display: flex; gap: 10px; margin-bottom: 2rem; }
-  .search-bar input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; color: var(--text); font-family: inherit; font-size: 14px; outline: none; transition: border-color .2s; }
-  .search-bar input:focus { border-color: var(--accent); }
-  .search-bar input::placeholder { color: var(--muted); }
-  .search-bar button { background: var(--accent); border: none; border-radius: 8px; padding: 10px 20px; color: #fff; font-family: inherit; font-size: 14px; cursor: pointer; transition: opacity .2s; }
-  .search-bar button:hover { opacity: .85; }
-
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 2rem; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-  .stat-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
-  .stat-card .value { font-size: 26px; font-weight: 700; }
-  .stat-card .sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .stat-card .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; }
+  .stat-card .sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .v-white { color: var(--text); }
+  .v-green { color: var(--green); }
   .v-cpu { color: var(--cpu); }
   .v-gpu { color: var(--gpu); }
-  .v-qpu { color: var(--qpu); }
-  .v-white { color: var(--text); }
+  .v-red { color: var(--red); }
 
-  .section-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; }
+  .controls { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  .controls input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-family: inherit; font-size: 13px; outline: none; flex: 1; min-width: 200px; transition: border-color .2s; }
+  .controls input:focus { border-color: var(--accent); }
+  .controls input::placeholder { color: var(--muted); }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--muted); font-family: inherit; font-size: 12px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: rgba(124,106,255,.1); }
 
-  .leaderboard { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 2rem; }
-  .lb-header { display: grid; grid-template-columns: 40px 1fr 70px 80px 100px 90px 70px; gap: 8px; padding: 10px 16px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
-  .lb-row { display: grid; grid-template-columns: 40px 1fr 70px 80px 100px 90px 70px; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); align-items: center; transition: background .15s; }
-  .lb-row:last-child { border-bottom: none; }
-  .lb-row:hover { background: rgba(124,106,255,.05); }
-  .rank { font-size: 13px; font-weight: 700; color: var(--muted); }
-  .rank.r1 { color: #ffd700; }
-  .rank.r2 { color: #c0c0c0; }
-  .rank.r3 { color: #cd7f32; }
-  .miner-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .miner-name.highlight { color: var(--accent); }
-  .tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; margin-left: 6px; }
-  .tag.CPU { background: rgba(55,138,221,.15); color: var(--cpu); }
+  .section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+
+  .node-table { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .node-table-header { display: grid; grid-template-columns: 40px 1fr 80px 90px 80px 100px; gap: 8px; padding: 10px 16px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
+  .node-row { display: grid; grid-template-columns: 40px 1fr 80px 90px 80px 100px; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); align-items: center; transition: background .15s; cursor: pointer; }
+  .node-row:last-child { border-bottom: none; }
+  .node-row:hover { background: rgba(124,106,255,.05); }
+  .node-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .node-name.me { color: var(--accent); }
+  .tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
   .tag.GPU { background: rgba(29,185,106,.15); color: var(--gpu); }
-  .tag.QPU { background: rgba(167,139,250,.15); color: var(--qpu); }
-  .bar-wrap { width: 100px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 3px; }
-  .bar-cpu { background: var(--cpu); }
-  .bar-gpu { background: var(--gpu); }
-  .bar-qpu { background: var(--qpu); }
+  .tag.CPU { background: rgba(55,138,221,.15); color: var(--cpu); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .status-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .status-dot.offline { background: var(--red); }
+  .ip-text { font-size: 11px; color: var(--muted); }
+  .cores-text { font-size: 12px; }
 
-  .node-detail { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 2rem; display: none; }
-  .node-detail.show { display: block; }
-  .nd-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .nd-title { font-size: 16px; font-weight: 700; }
-  .nd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-  .nd-stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
-  .nd-stat .l { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-  .nd-stat .v { font-size: 20px; font-weight: 700; }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 1rem; }
+  .page-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; color: var(--muted); font-family: inherit; font-size: 12px; cursor: pointer; transition: all .2s; }
+  .page-btn:hover, .page-btn.active { border-color: var(--accent); color: var(--accent); }
+  .page-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .page-info { font-size: 12px; color: var(--muted); }
 
   .loading { text-align: center; padding: 3rem; color: var(--muted); }
-  .error { text-align: center; padding: 3rem; color: var(--red); }
-
-  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 2rem; }
+  footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 2rem; }
   footer a { color: var(--accent); text-decoration: none; }
 
   @media (max-width: 700px) {
-    .lb-header, .lb-row { grid-template-columns: 30px 1fr 60px 70px; }
-    .lb-header > *:nth-child(n+5), .lb-row > *:nth-child(n+5) { display: none; }
+    .node-table-header, .node-row { grid-template-columns: 30px 1fr 60px 70px; }
+    .node-table-header > *:nth-child(n+5), .node-row > *:nth-child(n+5) { display: none; }
     .container { padding: 1rem; }
   }
 </style>
@@ -96,7 +88,7 @@
 <body>
 
 <header>
-  <div class="logo">Quip<span>Stats</span></div>
+  <div class="logo">Quip<span>Stats</span> <span style="font-size:12px;color:var(--muted);font-weight:400">Live</span></div>
   <div class="live-badge">
     <div class="live-dot"></div>
     <span id="updated">Loading...</span>
@@ -104,177 +96,156 @@
 </header>
 
 <div class="container">
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search miner ID or type (e.g. gpu-2.carback, CPU, GPU, QPU)" />
-    <button onclick="applySearch()">Search</button>
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="label">Total Nodes</div><div class="value v-white">—</div></div>
+    <div class="stat-card"><div class="label">Active Now</div><div class="value v-green">—</div></div>
+    <div class="stat-card"><div class="label">GPU Active</div><div class="value v-gpu">—</div></div>
+    <div class="stat-card"><div class="label">CPU Active</div><div class="value v-cpu">—</div></div>
+    <div class="stat-card"><div class="label">Offline</div><div class="value v-red">—</div></div>
   </div>
 
-  <div id="mainContent">
-    <div class="loading">Fetching network data...</div>
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search node name or IP..." oninput="filterAndRender()" />
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('active', this)">Active</button>
+    <button class="filter-btn" onclick="setFilter('gpu', this)">GPU</button>
+    <button class="filter-btn" onclick="setFilter('cpu', this)">CPU</button>
+    <button class="filter-btn" onclick="setFilter('offline', this)">Offline</button>
   </div>
+
+  <div class="section-title" id="tableTitle">All Nodes</div>
+  <div class="node-table">
+    <div class="node-table-header">
+      <div></div>
+      <div>Node</div>
+      <div>Type</div>
+      <div>Resources</div>
+      <div>Status</div>
+      <div>IP</div>
+    </div>
+    <div id="nodeList"><div class="loading">Fetching live data...</div></div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
 </div>
 
 <footer>
   Built by <a href="https://twitter.com/cryptobhartiyax" target="_blank">@cryptobhartiyax</a> &nbsp;·&nbsp;
   <a href="https://github.com/0xDarkSeidBull/quip_node_setup_guide" target="_blank">Node Setup Guide</a> &nbsp;·&nbsp;
-  Data from Quip Network
+  Data from live node logs · Auto-refreshes every 30s
 </footer>
 
 <script>
-const API = 'https://api.republicstats.xyz/api/quip/telemetry';
-let allBlocks = [];
-let searchTerm = '';
+const API = 'https://api.republicstats.xyz/api/quip/nodes';
+const MY_WALLET = '0x3bc6348e';
+const PER_PAGE = 50;
+
+let allNodes = [];
+let filtered = [];
+let currentPage = 1;
+let currentFilter = 'all';
 
 async function fetchData() {
   try {
     const r = await fetch(API);
     const data = await r.json();
-    allBlocks = data.blocks || [];
+    allNodes = data.nodes || [];
+
     document.getElementById('updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
-    render(allBlocks);
-  } catch(e) {
-    document.getElementById('mainContent').innerHTML = `<div class="error">Failed to fetch data.<br><small>${e.message}</small></div>`;
-  }
-}
 
-function applySearch() {
-  searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-  render(allBlocks);
-}
+    const active = allNodes.filter(n => n.active).length;
+    const gpu = allNodes.filter(n => n.active && n.type === 'GPU').length;
+    const cpu = allNodes.filter(n => n.active && n.type === 'CPU').length;
+    const offline = allNodes.length - active;
 
-document.getElementById('searchInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') applySearch();
-});
-
-function computeLeaderboard(blocks) {
-  const miners = {};
-  blocks.forEach(b => {
-    const id = b.minerId;
-    if (!miners[id]) miners[id] = { id, type: b.minerCategory, blocks: 0, totalTime: 0, bestEnergy: 0, totalShare: 0 };
-    miners[id].blocks++;
-    miners[id].totalTime += b.miningTime;
-    if (b.energy < miners[id].bestEnergy || miners[id].bestEnergy === 0) miners[id].bestEnergy = b.energy;
-  });
-  const total = blocks.length;
-  return Object.values(miners)
-    .map(m => ({ ...m, share: ((m.blocks / total) * 100).toFixed(1), avgTime: m.blocks ? (m.totalTime / m.blocks).toFixed(1) : 0 }))
-    .sort((a, b) => b.blocks - a.blocks);
-}
-
-function render(blocks) {
-  let filtered = blocks;
-  if (searchTerm) {
-    filtered = blocks.filter(b =>
-      b.minerId.toLowerCase().includes(searchTerm) ||
-      b.minerCategory.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  const lb = computeLeaderboard(filtered);
-  const totalBlocks = filtered.length;
-  const cpuBlocks = filtered.filter(b => b.minerCategory === 'CPU').length;
-  const gpuBlocks = filtered.filter(b => b.minerCategory === 'GPU').length;
-  const qpuBlocks = filtered.filter(b => b.minerCategory === 'QPU').length;
-  const uniqueMiners = new Set(filtered.map(b => b.minerId)).size;
-  const maxBlocks = lb[0]?.blocks || 1;
-
-  let html = `
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="label">Total Blocks</div>
-        <div class="value v-white">${totalBlocks}</div>
-        <div class="sub">on-chain</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Miners</div>
-        <div class="value v-white">${uniqueMiners}</div>
-        <div class="sub">unique nodes</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">CPU Blocks</div>
-        <div class="value v-cpu">${cpuBlocks}</div>
-        <div class="sub">${((cpuBlocks/totalBlocks)*100).toFixed(1)}% share</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">GPU Blocks</div>
-        <div class="value v-gpu">${gpuBlocks}</div>
-        <div class="sub">${((gpuBlocks/totalBlocks)*100).toFixed(1)}% share</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">QPU Blocks</div>
-        <div class="value v-qpu">${qpuBlocks}</div>
-        <div class="sub">${((qpuBlocks/totalBlocks)*100).toFixed(1)}% share</div>
-      </div>
-    </div>
-
-    <div class="section-title">Mining Leaderboard</div>
-    <div class="leaderboard">
-      <div class="lb-header">
-        <div>#</div>
-        <div>Node</div>
-        <div>Type</div>
-        <div>Blocks</div>
-        <div>Share</div>
-        <div>Avg Time</div>
-        <div>Best Energy</div>
-      </div>
-  `;
-
-  lb.forEach((m, i) => {
-    const rankClass = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
-    const isMe = m.id.includes('DarkSeidBull') || m.id.includes('3bc6348');
-    html += `
-      <div class="lb-row" onclick="showDetail('${m.id}')">
-        <div class="rank ${rankClass}">${i + 1}</div>
-        <div class="miner-name ${isMe ? 'highlight' : ''}">${m.id}</div>
-        <div><span class="tag ${m.type}">${m.type}</span></div>
-        <div>${m.blocks}</div>
-        <div>
-          <div class="bar-wrap"><div class="bar-fill bar-${m.type.toLowerCase()}" style="width:${(m.blocks/maxBlocks)*100}%"></div></div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${m.share}%</div>
-        </div>
-        <div style="color:var(--muted)">${m.avgTime}s</div>
-        <div style="color:var(--muted)">${m.bestEnergy}</div>
-      </div>
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><div class="label">Total Nodes</div><div class="value v-white">${allNodes.length.toLocaleString()}</div><div class="sub">ever seen</div></div>
+      <div class="stat-card"><div class="label">Active Now</div><div class="value v-green">${active.toLocaleString()}</div><div class="sub">last 15 min</div></div>
+      <div class="stat-card"><div class="label">GPU Active</div><div class="value v-gpu">${gpu}</div><div class="sub">CUDA nodes</div></div>
+      <div class="stat-card"><div class="label">CPU Active</div><div class="value v-cpu">${cpu}</div><div class="sub">CPU nodes</div></div>
+      <div class="stat-card"><div class="label">Offline</div><div class="value v-red">${offline.toLocaleString()}</div><div class="sub">>15 min ago</div></div>
     `;
-  });
 
-  html += `</div><div id="nodeDetail" class="node-detail"></div>`;
-  document.getElementById('mainContent').innerHTML = html;
+    filterAndRender();
+  } catch(e) {
+    document.getElementById('nodeList').innerHTML = `<div class="loading" style="color:var(--red)">Failed to fetch: ${e.message}</div>`;
+  }
 }
 
-function showDetail(minerId) {
-  const minerBlocks = allBlocks.filter(b => b.minerId === minerId);
-  if (!minerBlocks.length) return;
+function setFilter(f, btn) {
+  currentFilter = f;
+  currentPage = 1;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterAndRender();
+}
 
-  const type = minerBlocks[0].minerCategory;
-  const totalBlocks = allBlocks.length;
-  const avgTime = (minerBlocks.reduce((a, b) => a + b.miningTime, 0) / minerBlocks.length).toFixed(1);
-  const bestEnergy = Math.min(...minerBlocks.map(b => b.energy));
-  const share = ((minerBlocks.length / totalBlocks) * 100).toFixed(1);
-  const lastBlock = minerBlocks[minerBlocks.length - 1];
+function filterAndRender() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  filtered = allNodes.filter(n => {
+    const matchSearch = !q || n.name.toLowerCase().includes(q) || n.ip.toLowerCase().includes(q);
+    const matchFilter =
+      currentFilter === 'all' ? true :
+      currentFilter === 'active' ? n.active :
+      currentFilter === 'gpu' ? (n.active && n.type === 'GPU') :
+      currentFilter === 'cpu' ? (n.active && n.type === 'CPU') :
+      currentFilter === 'offline' ? !n.active : true;
+    return matchSearch && matchFilter;
+  });
 
-  const el = document.getElementById('nodeDetail');
-  el.className = 'node-detail show';
-  el.innerHTML = `
-    <div class="nd-header">
-      <span class="tag ${type}">${type}</span>
-      <div class="nd-title">${minerId}</div>
-    </div>
-    <div class="nd-stats">
-      <div class="nd-stat"><div class="l">Blocks Mined</div><div class="v" style="color:var(--accent)">${minerBlocks.length}</div></div>
-      <div class="nd-stat"><div class="l">Network Share</div><div class="v" style="color:var(--green)">${share}%</div></div>
-      <div class="nd-stat"><div class="l">Avg Mining Time</div><div class="v">${avgTime}s</div></div>
-      <div class="nd-stat"><div class="l">Best Energy</div><div class="v">${bestEnergy}</div></div>
-      <div class="nd-stat"><div class="l">Last Block</div><div class="v">#${lastBlock.blockIndex}</div></div>
-      <div class="nd-stat"><div class="l">Last Nonce</div><div class="v" style="font-size:14px">${lastBlock.nonce}</div></div>
-    </div>
-  `;
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const labels = { all: 'All Nodes', active: 'Active Nodes', gpu: 'Active GPU Nodes', cpu: 'Active CPU Nodes', offline: 'Offline Nodes' };
+  document.getElementById('tableTitle').textContent = `${labels[currentFilter]} (${filtered.length.toLocaleString()})`;
+
+  renderPage();
+  renderPagination();
+}
+
+function renderPage() {
+  const start = (currentPage - 1) * PER_PAGE;
+  const page = filtered.slice(start, start + PER_PAGE);
+
+  if (!page.length) {
+    document.getElementById('nodeList').innerHTML = '<div class="loading">No nodes found</div>';
+    return;
+  }
+
+  const html = page.map((n, i) => {
+    const isMe = n.name.toLowerCase().includes('darkseid') || n.name.includes(MY_WALLET);
+    const res = n.type === 'GPU' ? `${n.gpus}GPU+${n.cpus}C` : `${n.cpus} Cores`;
+    const rank = start + i + 1;
+    return `
+      <div class="node-row">
+        <div style="font-size:11px;color:var(--muted)">${rank}</div>
+        <div class="node-name ${isMe ? 'me' : ''}" title="${n.name}">${n.name}</div>
+        <div><span class="tag ${n.type}">${n.type}</span></div>
+        <div class="cores-text">${res}</div>
+        <div><span class="status-dot ${n.active ? 'active' : 'offline'}"></span></div>
+        <div class="ip-text">${n.ip}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('nodeList').innerHTML = html;
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  if (totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>`;
+  html += `<span class="page-info">Page ${currentPage} of ${totalPages}</span>`;
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>`;
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderPage();
+  renderPagination();
+  window.scrollTo(0, 0);
 }
 
 fetchData();
-setInterval(fetchData, 60000);
+setInterval(fetchData, 30000);
 </script>
 </body>
 </html>
