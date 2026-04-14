@@ -10,6 +10,7 @@
   --bg: #0a0a0f; --surface: #111118; --border: #1e1e2e;
   --text: #e2e2f0; --muted: #6b6b8a; --accent: #7c6aff;
   --green: #1db96a; --red: #e24b4b; --cpu: #378add; --gpu: #1db96a;
+  --orange: #f97316; --yellow: #fbbf24; --cyan: #22d3ee;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira Code',monospace; font-size: 14px; min-height: 100vh; }
@@ -27,8 +28,8 @@ header { padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: fl
 .fresh-tag { margin-left:auto; font-size:10px; color:var(--green); opacity:0; transition:opacity .3s; }
 .fresh-tag.show { opacity:1; }
 
-.tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); padding:0 2rem; background:var(--bg); }
-.tab-btn { padding:10px 18px; font-family:inherit; font-size:12px; font-weight:600; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all .2s; margin-bottom:-1px; }
+.tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); padding:0 2rem; background:var(--bg); overflow-x:auto; }
+.tab-btn { padding:10px 18px; font-family:inherit; font-size:12px; font-weight:600; color:var(--muted); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all .2s; margin-bottom:-1px; white-space:nowrap; }
 .tab-btn:hover { color:var(--text); }
 .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
 .tab-pane { display:none; }
@@ -135,12 +136,89 @@ footer a { color:var(--accent); text-decoration:none; }
 .a-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
+/* SYBIL DETECTOR */
+.sy-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:1.5rem; }
+.sy-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; position:relative; overflow:hidden; }
+.sy-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.sy-card.danger::before{background:var(--red);} .sy-card.warn::before{background:var(--orange);} .sy-card.info::before{background:var(--cyan);} .sy-card.ok::before{background:var(--green);} .sy-card.yellow::before{background:var(--yellow);}
+.sy-card .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
+.sy-card .val { font-size:28px; font-weight:700; }
+.sy-card.danger .val{color:var(--red);} .sy-card.warn .val{color:var(--orange);} .sy-card.info .val{color:var(--cyan);} .sy-card.ok .val{color:var(--green);} .sy-card.yellow .val{color:var(--yellow);}
+.sy-card .sub { font-size:10px; color:var(--muted); margin-top:3px; }
+
+.sy-alert { background:rgba(226,75,75,.08); border:1px solid rgba(226,75,75,.3); border-left:4px solid var(--red); border-radius:8px; padding:16px 20px; margin-bottom:1.5rem; display:none; align-items:center; gap:16px; }
+.sy-alert.show { display:flex; }
+.sy-alert-icon { font-size:24px; flex-shrink:0; }
+.sy-alert-title { font-size:16px; font-weight:700; color:var(--red); }
+.sy-alert-desc { font-size:12px; color:var(--muted); margin-top:2px; }
+
+.sy-controls { display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; align-items:center; }
+.sy-controls input { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; flex:1; min-width:200px; }
+.sy-controls input:focus { border-color:var(--red); }
+.sy-controls input::placeholder { color:var(--muted); }
+.sy-fbtn { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--muted); font-family:inherit; font-size:12px; cursor:pointer; white-space:nowrap; }
+.sy-fbtn.on,.sy-fbtn:hover { border-color:var(--red); color:var(--red); background:rgba(226,75,75,.08); }
+.sy-sort { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-family:inherit; font-size:12px; outline:none; cursor:pointer; }
+.sy-export { background:transparent; border:1px solid var(--border); color:var(--muted); font-family:inherit; font-size:11px; padding:8px 16px; border-radius:8px; cursor:pointer; letter-spacing:1px; }
+.sy-export:hover { border-color:var(--cyan); color:var(--cyan); }
+
+.sy-section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.sy-section-title { font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:10px; }
+.sy-count-badge { background:rgba(226,75,75,.12); border:1px solid rgba(226,75,75,.3); color:var(--red); font-size:11px; padding:3px 10px; border-radius:20px; }
+
+.ip-list { display:flex; flex-direction:column; gap:10px; }
+.ip-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; transition:border-color .2s; }
+.ip-card:hover { border-color:rgba(226,75,75,.3); }
+.ip-card.critical { border-left:3px solid var(--red); }
+.ip-card.high     { border-left:3px solid var(--orange); }
+.ip-card.medium   { border-left:3px solid var(--yellow); }
+.ip-hdr { display:flex; align-items:center; padding:14px 18px; cursor:pointer; gap:14px; user-select:none; flex-wrap:wrap; }
+.ip-hdr:hover { background:rgba(255,255,255,.02); }
+.threat-badge { font-size:10px; letter-spacing:1px; padding:3px 9px; border-radius:4px; font-weight:700; min-width:72px; text-align:center; flex-shrink:0; }
+.badge-critical { background:rgba(226,75,75,.2); color:var(--red); border:1px solid rgba(226,75,75,.4); }
+.badge-high     { background:rgba(249,115,22,.2); color:var(--orange); border:1px solid rgba(249,115,22,.4); }
+.badge-medium   { background:rgba(251,191,36,.15); color:var(--yellow); border:1px solid rgba(251,191,36,.3); }
+.ip-addr { font-family:'SF Mono','Fira Code',monospace; font-size:14px; flex:1; }
+.ip-nodecount { display:flex; align-items:baseline; gap:6px; }
+.ip-nodecount .num { font-size:24px; font-weight:700; color:var(--red); }
+.ip-nodecount .lbl { font-size:10px; color:var(--muted); letter-spacing:1px; }
+.ip-wallets { font-size:11px; color:var(--muted); min-width:110px; text-align:right; }
+.ip-wallets span { color:var(--cyan); }
+.chevron { color:var(--muted); font-size:11px; transition:transform .25s; flex-shrink:0; }
+.ip-card.open .chevron { transform:rotate(180deg); }
+
+.nodes-table { border-top:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; }
+.ip-card.open .nodes-table { max-height:2000px; }
+.table-inner { padding:0 18px 14px; }
+.nodes-grid { display:grid; grid-template-columns:1fr 2fr 160px 70px 60px; gap:0; margin-top:10px; }
+.grid-head { font-size:10px; color:var(--muted); letter-spacing:1px; padding:7px 10px; border-bottom:1px solid var(--border); text-transform:uppercase; }
+.grid-cell { padding:9px 10px; font-size:11px; border-bottom:1px solid rgba(255,255,255,.03); display:flex; align-items:center; gap:5px; overflow:hidden; }
+.node-name-cell { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text); font-size:12px; font-weight:600; }
+.wallet-addr { font-size:11px; color:var(--cyan); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.wallet-none { color:var(--muted); font-style:italic; font-size:11px; }
+.ip-cell { font-size:10px; color:var(--muted); }
+.type-chip-sy { font-size:10px; padding:2px 7px; border-radius:4px; font-weight:600; }
+.type-cpu-sy { background:rgba(55,138,221,.15); color:var(--cpu); }
+.type-gpu-sy { background:rgba(29,185,106,.15); color:var(--gpu); }
+.sdot2 { width:7px; height:7px; border-radius:50%; display:inline-block; }
+.sdot2.on { background:var(--green); box-shadow:0 0 5px var(--green); }
+.sdot2.off { background:var(--muted); }
+.copy-btn2 { background:none; border:none; color:var(--muted); cursor:pointer; font-size:11px; padding:2px 4px; }
+.copy-btn2:hover { color:var(--cyan); }
+.report-btn { background:rgba(226,75,75,.1); border:1px solid rgba(226,75,75,.3); color:var(--red); font-family:inherit; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; letter-spacing:1px; margin-top:10px; float:right; }
+.report-btn:hover { background:rgba(226,75,75,.2); }
+
+.sy-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; gap:14px; }
+.sy-spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; }
+
 @media(max-width:700px){
   .tbl-head,.nrow{grid-template-columns:30px 1fr 60px 70px;}
   .tbl-head>*:nth-child(n+5),.nrow>*:nth-child(n+5){display:none;}
   .container{padding:1rem;}
   .a-grid2,.a-grid3{grid-template-columns:1fr;}
   .tabs{padding:0 1rem;}
+  .nodes-grid{grid-template-columns:1fr 1fr 1fr;}
+  .nodes-grid .grid-head:nth-child(4),.nodes-grid .grid-head:nth-child(5),.nodes-grid .grid-cell:nth-child(5n+4),.nodes-grid .grid-cell:nth-child(5n+5){display:none;}
 }
 </style>
 </head>
@@ -160,6 +238,7 @@ footer a { color:var(--accent); text-decoration:none; }
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('nodes',this)">🖥 Live Nodes</button>
   <button class="tab-btn" onclick="switchTab('analytics',this)">📊 Analytics</button>
+  <button class="tab-btn" onclick="switchTab('sybil',this)">🚨 Sybil Detector</button>
 </div>
 
 <!-- LIVE NODES -->
@@ -214,6 +293,49 @@ footer a { color:var(--accent); text-decoration:none; }
 </div>
 </div>
 
+<!-- SYBIL DETECTOR -->
+<div id="tab-sybil" class="tab-pane">
+<div class="container">
+  <div class="sy-alert" id="sy-alert">
+    <div class="sy-alert-icon">🚨</div>
+    <div>
+      <div class="sy-alert-title" id="sy-alert-title">SYBIL NODES DETECTED</div>
+      <div class="sy-alert-desc" id="sy-alert-desc">Loading analysis...</div>
+    </div>
+  </div>
+  <div class="sy-stats">
+    <div class="sy-card danger"><div class="lbl">⚠ Duplicate IPs</div><div class="val" id="sy-dupes">—</div><div class="sub">IPs running 2+ nodes</div></div>
+    <div class="sy-card warn"><div class="lbl">🔴 Extra Nodes</div><div class="val" id="sy-extra">—</div><div class="sub">Beyond first per IP</div></div>
+    <div class="sy-card info"><div class="lbl">🌐 Total Nodes</div><div class="val" id="sy-total">—</div><div class="sub">Entire network</div></div>
+    <div class="sy-card ok"><div class="lbl">✅ Unique IPs</div><div class="val" id="sy-unique">—</div><div class="sub">Real operators</div></div>
+    <div class="sy-card yellow"><div class="lbl">📊 Sybil Rate</div><div class="val" id="sy-rate">—</div><div class="sub">% nodes duplicated</div></div>
+  </div>
+
+  <div class="sy-controls">
+    <input id="sy-srch" type="text" placeholder="Search IP, node name or wallet..." />
+    <button class="sy-fbtn on" id="sy-f2" onclick="setSyFilter(2,this)">All 2+</button>
+    <button class="sy-fbtn" id="sy-f5" onclick="setSyFilter(5,this)">5+ Nodes</button>
+    <button class="sy-fbtn" id="sy-f10" onclick="setSyFilter(10,this)">10+ Nodes</button>
+    <button class="sy-fbtn" id="sy-f50" onclick="setSyFilter(50,this)">50+ Nodes</button>
+    <select class="sy-sort" id="sy-sort" onchange="renderSybil()">
+      <option value="count-desc">Most Nodes First</option>
+      <option value="count-asc">Fewest Nodes First</option>
+      <option value="wallets-desc">Most Wallets First</option>
+    </select>
+    <button class="sy-export" onclick="exportSybilCSV()">⬇ Export CSV</button>
+  </div>
+
+  <div id="sy-loading" class="sy-loading"><div class="sy-spinner"></div><span style="color:var(--muted);font-size:12px">Scanning for sybil nodes...</span></div>
+  <div id="sy-content" style="display:none">
+    <div class="sy-section-hdr">
+      <div class="sy-section-title">Flagged IPs <span class="sy-count-badge" id="sy-shown">—</span></div>
+      <div style="font-size:11px;color:var(--muted)">Click any row to expand node details</div>
+    </div>
+    <div class="ip-list" id="ip-list"></div>
+  </div>
+</div>
+</div>
+
 <footer>
   Built by <a href="https://twitter.com/cryptobhartiyax" target="_blank">@cryptobhartiyax</a> &nbsp;·&nbsp;
   <a href="https://github.com/0xDarkSeidBull/quip_node_setup_guide" target="_blank">Node Setup Guide</a> &nbsp;·&nbsp;
@@ -232,39 +354,34 @@ var API_NODES = 'https://api.republicstats.xyz/api/quip/nodes';
 var API_LOCAL  = 'https://api.republicstats.xyz/api/quip/node/local';
 var PER_PAGE   = 50;
 var CACHE_KEY  = 'qs_nodes_v2';
-var CACHE_TTL  = 5 * 60 * 1000; // 5 min
+var CACHE_TTL  = 5 * 60 * 1000;
 
 var allNodes=[], filtered=[], curPage=1, curFilt='all';
 var analyticsBuilt=false, aCharts={};
+var allDupes=[], syMinCount=2, sybilBuilt=false;
 
 Chart.defaults.color='#6b6b8a';
 Chart.defaults.borderColor='#1e1e2e';
 Chart.defaults.font.family="'SF Mono','Fira Code',monospace";
 
-// ── CACHE ──────────────────────────────────────
-function saveCache(nodes) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({nodes:nodes, ts:Date.now()})); } catch(e){}
-}
-function loadCache() {
-  try { var r=localStorage.getItem(CACHE_KEY); return r?JSON.parse(r):null; } catch(e){ return null; }
-}
+function saveCache(nodes) { try { localStorage.setItem(CACHE_KEY, JSON.stringify({nodes:nodes, ts:Date.now()})); } catch(e){} }
+function loadCache() { try { var r=localStorage.getItem(CACHE_KEY); return r?JSON.parse(r):null; } catch(e){ return null; } }
 function mergeNodes(old, fresh) {
   var map={};
   old.forEach(function(n){ map[n.ip+'|'+n.name]=n; });
-  fresh.forEach(function(n){ map[n.ip+'|'+n.name]=n; }); // fresh overwrites
+  fresh.forEach(function(n){ map[n.ip+'|'+n.name]=n; });
   return Object.values(map);
 }
 
-// ── TAB ────────────────────────────────────────
-function switchTab(name,btn) {
+function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
   btn.classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='analytics'&&allNodes.length>0&&!analyticsBuilt) buildAnalytics(allNodes);
+  if(name==='sybil'&&allNodes.length>0&&!sybilBuilt) buildSybil(allNodes);
 }
 
-// ── STATS ───────────────────────────────────────
 function renderStats(nodes) {
   var active=0,gpu=0,cpu=0;
   for(var i=0;i<nodes.length;i++){var n=nodes[i];if(n.active){active++;if(n.type==='GPU')gpu++;else cpu++;}}
@@ -277,18 +394,15 @@ function renderStats(nodes) {
 }
 function mkCard(l,v,s,c){return '<div class="stat-card"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';}
 
-// ── BOOT ────────────────────────────────────────
 function boot() {
   var cache=loadCache();
   if(cache&&cache.nodes&&cache.nodes.length>0) {
-    // Show cached data INSTANTLY — no loading wait
     allNodes=cache.nodes;
     renderStats(allNodes);
     applyFilter();
     var ageMin=Math.round((Date.now()-cache.ts)/60000);
     document.getElementById('cacheBar').classList.add('show');
-    document.getElementById('cacheMsg').textContent=
-      'Cached: '+allNodes.length.toLocaleString()+' nodes · '+(ageMin<1?'<1':ageMin)+'m ago · fetching fresh…';
+    document.getElementById('cacheMsg').textContent='Cached: '+allNodes.length.toLocaleString()+' nodes · '+(ageMin<1?'<1':ageMin)+'m ago · fetching fresh…';
     document.getElementById('upd').textContent='Cached · refreshing…';
   }
   fetchFresh(cache?cache.nodes:[]);
@@ -311,6 +425,7 @@ function fetchFresh(oldNodes) {
       ft.classList.add('show');
       setTimeout(function(){ft.classList.remove('show');},3000);
       if(analyticsBuilt){destroyCharts();analyticsBuilt=false;buildAnalytics(allNodes);}
+      if(sybilBuilt){sybilBuilt=false;buildSybil(allNodes);}
     })
     .catch(function(err){
       if(allNodes.length===0) document.getElementById('nlist').innerHTML='<div class="empty" style="color:var(--red)">Error: '+err.message+'</div>';
@@ -318,7 +433,6 @@ function fetchFresh(oldNodes) {
     });
 }
 
-// ── FILTER ──────────────────────────────────────
 ['all','active','gpu','cpu','offline'].forEach(function(f){
   document.getElementById('f-'+f).addEventListener('click',function(){
     curFilt=f;curPage=1;
@@ -342,7 +456,6 @@ function applyFilter(){
   renderRows();renderPgn();
 }
 
-// ── ROWS ────────────────────────────────────────
 function isMe(n){return n.name.toLowerCase().indexOf('darkseid')>=0;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -370,7 +483,6 @@ document.getElementById('nlist').addEventListener('click',function(e){
   while(el&&el!==this){if(el.classList&&el.classList.contains('nrow')){var idx=parseInt(el.getAttribute('data-idx'),10);if(!isNaN(idx)&&filtered[idx])openModal(filtered[idx]);return;}el=el.parentNode;}
 });
 
-// ── PAGINATION ──────────────────────────────────
 function renderPgn(){
   var total=Math.ceil(filtered.length/PER_PAGE);
   if(total<=1){document.getElementById('pgn').innerHTML='';return;}
@@ -381,7 +493,6 @@ function renderPgn(){
 }
 function goPage(p){curPage=p;renderRows();renderPgn();window.scrollTo(0,0);}
 
-// ── MODAL ───────────────────────────────────────
 function openModal(node){
   document.getElementById('overlay').classList.add('show');
   document.getElementById('mbody').innerHTML='<div class="empty">Loading...</div>';
@@ -414,7 +525,7 @@ document.getElementById('mclose').addEventListener('click',closeModal);
 document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 
-// ── ANALYTICS ───────────────────────────────────
+/* ── ANALYTICS ── */
 var DONUT_CFG={responsive:true,maintainAspectRatio:true,cutout:'66%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#16161f',borderColor:'#1e1e2e',borderWidth:1,padding:10,callbacks:{label:function(ctx){var t=ctx.dataset.data.reduce(function(a,b){return a+b;},0);return ' '+ctx.label+': '+ctx.raw.toLocaleString()+' ('+Math.round(ctx.raw/t*100)+'%)';}}}}}; 
 function mkLegend(id,labels,values,colors){var total=values.reduce(function(a,b){return a+b;},0);document.getElementById(id).innerHTML=labels.map(function(l,i){return '<div class="a-leg-item"><div class="a-leg-l"><div class="a-leg-dot" style="background:'+colors[i]+'"></div><span>'+l+'</span></div><span class="a-leg-val">'+values[i].toLocaleString()+' <span style="color:var(--muted);font-size:9px">('+Math.round(values[i]/(total||1)*100)+'%)</span></span></div>';}).join('');}
 function destroyCharts(){Object.keys(aCharts).forEach(function(k){if(aCharts[k])aCharts[k].destroy();});aCharts={};}
@@ -471,7 +582,176 @@ function buildAnalytics(nodes){
 }
 function mkMini(l,v,s){return '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--text)">'+v+'</div><div style="font-size:9px;color:var(--muted);margin-top:2px">'+l+'<br>'+s+'</div></div>';}
 
-// ── START ────────────────────────────────────────
+/* ── SYBIL DETECTOR ── */
+function extractWallet(name) {
+  if(!name) return null;
+  var m = name.match(/(0x[a-fA-F0-9]{40})/);
+  return m ? m[1] : null;
+}
+
+function threatLevel(n) {
+  if(n >= 50) return {label:'CRITICAL', cls:'critical', badge:'badge-critical'};
+  if(n >= 10) return {label:'HIGH', cls:'high', badge:'badge-high'};
+  return {label:'MEDIUM', cls:'medium', badge:'badge-medium'};
+}
+
+function buildSybil(nodes) {
+  document.getElementById('sy-loading').style.display='flex';
+  document.getElementById('sy-content').style.display='none';
+  setTimeout(function(){
+    var ipMap={};
+    nodes.forEach(function(n){
+      var ip=n.ip?(n.ip.split(':')[0]):n.ip;
+      if(!ipMap[ip]) ipMap[ip]=[];
+      ipMap[ip].push(n);
+    });
+
+    allDupes=Object.entries(ipMap)
+      .filter(function(e){return e[1].length>1;})
+      .map(function(e){
+        var ip=e[0], arr=e[1];
+        var wallets=[...new Set(arr.map(function(n){return extractWallet(n.name);}).filter(Boolean))];
+        return {ip:ip, nodes:arr, walletCount:wallets.length};
+      });
+
+    var totalNodes=nodes.length;
+    var uniqueIPs=Object.keys(ipMap).length;
+    var dupeIPs=allDupes.length;
+    var extraNodes=allDupes.reduce(function(s,d){return s+d.nodes.length-1;},0);
+    var rate=((extraNodes/totalNodes)*100).toFixed(1);
+
+    document.getElementById('sy-dupes').textContent=dupeIPs.toLocaleString();
+    document.getElementById('sy-extra').textContent=extraNodes.toLocaleString();
+    document.getElementById('sy-total').textContent=totalNodes.toLocaleString();
+    document.getElementById('sy-unique').textContent=uniqueIPs.toLocaleString();
+    document.getElementById('sy-rate').textContent=rate+'%';
+
+    var sorted=[].concat(allDupes).sort(function(a,b){return b.nodes.length-a.nodes.length;});
+    var top=sorted[0];
+    document.getElementById('sy-alert').classList.add('show');
+    document.getElementById('sy-alert-title').textContent='🚨 '+dupeIPs+' IPs RUNNING MULTIPLE NODES';
+    document.getElementById('sy-alert-desc').textContent=
+      extraNodes.toLocaleString()+' extra nodes detected ('+rate+'% of network). Top offender: '+(top?top.ip:'-')+' with '+(top?top.nodes.length:0)+' nodes.';
+
+    document.getElementById('sy-loading').style.display='none';
+    document.getElementById('sy-content').style.display='block';
+    sybilBuilt=true;
+    renderSybil();
+  },50);
+}
+
+document.getElementById('sy-srch').addEventListener('input', renderSybil);
+
+function setSyFilter(n, btn) {
+  syMinCount=n;
+  document.querySelectorAll('.sy-fbtn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  renderSybil();
+}
+
+function renderSybil() {
+  var q=document.getElementById('sy-srch').value.toLowerCase().trim();
+  var sortBy=document.getElementById('sy-sort').value;
+
+  var filtered=allDupes.filter(function(d){
+    if(d.nodes.length<syMinCount) return false;
+    if(!q) return true;
+    if(d.ip.indexOf(q)>=0) return true;
+    return d.nodes.some(function(n){
+      return (n.name||'').toLowerCase().indexOf(q)>=0 ||
+             (extractWallet(n.name||'')||'').toLowerCase().indexOf(q)>=0;
+    });
+  });
+
+  if(sortBy==='count-asc') filtered.sort(function(a,b){return a.nodes.length-b.nodes.length;});
+  else if(sortBy==='wallets-desc') filtered.sort(function(a,b){return b.walletCount-a.walletCount;});
+  else filtered.sort(function(a,b){return b.nodes.length-a.nodes.length;});
+
+  document.getElementById('sy-shown').textContent=filtered.length+' IPs';
+
+  if(!filtered.length){
+    document.getElementById('ip-list').innerHTML='<div class="empty">No results found for current filters.</div>';
+    return;
+  }
+
+  var html=filtered.map(function(d,i){
+    var t=threatLevel(d.nodes.length);
+    var wallets=[...new Set(d.nodes.map(function(n){return extractWallet(n.name||'');}).filter(Boolean))];
+    var nodeRows=d.nodes.map(function(n){
+      var wallet=extractWallet(n.name||'');
+      var displayName=(n.name||'').replace(/(0x[a-fA-F0-9]{40})/g,'').replace(/[-_\s]+$/,'').trim()||n.ip;
+      var shortDisplay=displayName.length>28?displayName.slice(0,26)+'…':displayName;
+      var shortWallet=wallet?(wallet.slice(0,8)+'…'+wallet.slice(-6)):null;
+      return '<div class="grid-cell"><span class="node-name-cell" title="'+esc(n.name||'')+'">'+esc(shortDisplay)+'</span></div>'
+        +'<div class="grid-cell">'+(wallet?'<span class="wallet-addr" title="'+esc(wallet)+'">'+esc(shortWallet)+'</span><button class="copy-btn2" onclick="copySy(\''+esc(wallet)+'\',this)">⧉</button>':'<span class="wallet-none">— no wallet —</span>')+'</div>'
+        +'<div class="grid-cell"><span class="ip-cell">'+esc(n.ip)+'</span></div>'
+        +'<div class="grid-cell"><span class="type-chip-sy type-'+(n.type||'CPU').toLowerCase()+'-sy">'+esc((n.type||'CPU').toUpperCase())+'</span></div>'
+        +'<div class="grid-cell" style="justify-content:center"><span class="sdot2 '+(n.active?'on':'off')+'"></span></div>';
+    }).join('');
+
+    return '<div class="ip-card '+t.cls+'" id="sycard-'+i+'">'
+      +'<div class="ip-hdr" onclick="toggleSy('+i+')">'
+      +'<span class="threat-badge '+t.badge+'">'+t.label+'</span>'
+      +'<span class="ip-addr">'+esc(d.ip)+'</span>'
+      +'<div class="ip-nodecount"><span class="num">'+d.nodes.length+'</span><span class="lbl">NODES</span></div>'
+      +'<span class="ip-wallets">'+(wallets.length>0?'<span>'+wallets.length+'</span> wallet'+(wallets.length!==1?'s':''):'<span style="color:var(--muted)">0</span> wallets')+'</span>'
+      +'<span class="chevron">▼</span>'
+      +'</div>'
+      +'<div class="nodes-table"><div class="table-inner">'
+      +'<div class="nodes-grid">'
+      +'<div class="grid-head">Node Name</div><div class="grid-head">Wallet</div><div class="grid-head">IP:Port</div><div class="grid-head">Type</div><div class="grid-head">Status</div>'
+      +nodeRows
+      +'</div>'
+      +'<button class="report-btn" onclick="copyDiscordReport(\''+esc(d.ip)+'\','+d.nodes.length+',event)">📋 Copy Discord Report</button>'
+      +'</div></div></div>';
+  }).join('');
+
+  document.getElementById('ip-list').innerHTML=html;
+}
+
+function toggleSy(i) { document.getElementById('sycard-'+i).classList.toggle('open'); }
+
+function copySy(text, btn) {
+  navigator.clipboard.writeText(text);
+  btn.textContent='✓';
+  setTimeout(function(){btn.textContent='⧉';},1500);
+}
+
+function copyDiscordReport(ip, count, e) {
+  e.stopPropagation();
+  var d=allDupes.find(function(x){return x.ip===ip;});
+  if(!d) return;
+  var wallets=[...new Set(d.nodes.map(function(n){return extractWallet(n.name||'');}).filter(Boolean))];
+  var nodeList=d.nodes.slice(0,20).map(function(n){
+    var w=extractWallet(n.name||'');
+    return '  • '+(n.name||n.ip)+(w?' | '+w:'');
+  }).join('\n');
+  var extra=d.nodes.length>20?'\n  ...and '+(d.nodes.length-20)+' more':'';
+  var report='🚨 Sybil Detection Report — quipstats.xyz\nIP: '+ip+'\nNodes: '+count+' ('+wallets.length+' unique wallet'+(wallets.length!==1?'s':'')+')\nDetected: '+new Date().toUTCString()+'\n\nNodes on this IP:\n'+nodeList+extra+'\n\nData source: quipstats.xyz/sybil';
+  navigator.clipboard.writeText(report);
+  var btn=e.target;
+  btn.textContent='✅ Copied!';
+  setTimeout(function(){btn.textContent='📋 Copy Discord Report';},2000);
+}
+
+function exportSybilCSV() {
+  var rows=[['IP','Total Nodes','Threat Level','Node Name','Wallet','Type','Active']];
+  allDupes.forEach(function(d){
+    var t=threatLevel(d.nodes.length);
+    d.nodes.forEach(function(n){
+      var w=extractWallet(n.name||'')||'';
+      rows.push([d.ip,d.nodes.length,t.label,n.name||'',w,n.type||'CPU',n.active?'Yes':'No']);
+    });
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='quip-sybil-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+/* ── START ── */
 boot();
 setInterval(function(){fetchFresh(allNodes);},30000);
 </script>
