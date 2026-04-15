@@ -36,7 +36,7 @@ header { padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: fl
 .tab-pane.active { display:block; }
 
 .container { max-width:1300px; margin:0 auto; padding:1.5rem 2rem; }
-.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:1.5rem; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:1.5rem; }
 .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
 .stat-card .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
 .stat-card .val { font-size:28px; font-weight:700; }
@@ -384,12 +384,30 @@ function switchTab(name, btn) {
 
 function renderStats(nodes) {
   var active=0,gpu=0,cpu=0;
-  for(var i=0;i<nodes.length;i++){var n=nodes[i];if(n.active){active++;if(n.type==='GPU')gpu++;else cpu++;}}
+  var uniqueIPs=new Set(), activeUniqueIPs=new Set();
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i];
+    var baseIP=(n.ip||'').split(':')[0];
+    uniqueIPs.add(baseIP);
+    if(n.active){
+      active++;
+      activeUniqueIPs.add(baseIP);
+      if(n.type==='GPU')gpu++;else cpu++;
+    }
+  }
+  var uniqueOps=uniqueIPs.size;
+  var multiNodeIPs=nodes.reduce(function(acc,n){
+    var ip=(n.ip||'').split(':')[0]; acc[ip]=(acc[ip]||0)+1; return acc;
+  },{});
+  var sybilCount=Object.values(multiNodeIPs).filter(function(c){return c>1;}).length;
+
   document.getElementById('sgrid').innerHTML=
-    mkCard('Total Nodes',nodes.length.toLocaleString(),'ever seen','var(--text)')+
+    mkCard('Node Instances',nodes.length.toLocaleString(),'total entries in log','var(--text)')+
+    mkCard('Unique Operators',uniqueOps.toLocaleString(),'distinct IPs','var(--accent)')+
     mkCard('Active Now',active.toLocaleString(),'last 15 min','var(--green)')+
     mkCard('GPU Active',gpu,'CUDA nodes','var(--gpu)')+
     mkCard('CPU Active',cpu,'CPU nodes','var(--cpu)')+
+    mkCard('Multi-Node IPs',sybilCount.toLocaleString(),'2+ nodes same IP','var(--orange)')+
     mkCard('Offline',(nodes.length-active).toLocaleString(),'>15 min ago','var(--red)');
 }
 function mkCard(l,v,s,c){return '<div class="stat-card"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';}
