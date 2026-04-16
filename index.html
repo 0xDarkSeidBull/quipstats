@@ -350,11 +350,12 @@ footer a { color:var(--accent); text-decoration:none; }
 </div>
 
 <script>
-var API_NODES = 'https://api.republicstats.xyz/api/quip/nodes';
-var API_LOCAL  = 'https://api.republicstats.xyz/api/quip/node/local';
-var PER_PAGE   = 50;
-var CACHE_KEY  = 'qs_nodes_v2';
-var CACHE_TTL  = 5 * 60 * 1000;
+var API_NODES    = 'https://api.republicstats.xyz/api/quip/telemetry/nodes';
+var API_BLOCKS   = 'https://api.republicstats.xyz/api/quip/telemetry/blocks';
+var API_LOCAL    = 'https://api.republicstats.xyz/api/quip/node/local';
+var PER_PAGE     = 50;
+var CACHE_KEY    = 'qs_telem_v1';
+var CACHE_TTL    = 5 * 60 * 1000;
 
 var allNodes=[], filtered=[], curPage=1, curFilt='all';
 var analyticsBuilt=false, aCharts={};
@@ -366,10 +367,25 @@ Chart.defaults.font.family="'SF Mono','Fira Code',monospace";
 
 function saveCache(nodes) { try { localStorage.setItem(CACHE_KEY, JSON.stringify({nodes:nodes, ts:Date.now()})); } catch(e){} }
 function loadCache() { try { var r=localStorage.getItem(CACHE_KEY); return r?JSON.parse(r):null; } catch(e){ return null; } }
+function normalizeNode(n) {
+  var status = n.status || 'unknown';
+  return {
+    name:       n.miner_id || n.address || '',
+    ip:         n.public_host || (n.address||'').split(':')[0] || '',
+    type:       n.node_type || 'CPU',
+    active:     status === 'active',
+    status:     status,
+    cpus:       n.num_cpus || 0,
+    gpus:       n.node_type === 'GPU' ? 1 : 0,
+    last_seen:  n.last_seen || 0,
+    first_seen: n.first_seen || 0,
+    address:    n.address || '',
+  };
+}
 function mergeNodes(old, fresh) {
   var map={};
-  old.forEach(function(n){ map[n.ip+'|'+n.name]=n; });
-  fresh.forEach(function(n){ map[n.ip+'|'+n.name]=n; });
+  old.forEach(function(n){ map[n.address||n.name]=n; });
+  fresh.forEach(function(n){ map[n.address||n.name]=n; });
   return Object.values(map);
 }
 
@@ -383,32 +399,28 @@ function switchTab(name, btn) {
 }
 
 function renderStats(nodes) {
-  var active=0,gpu=0,cpu=0;
-  var uniqueIPs=new Set(), activeUniqueIPs=new Set();
+  var active=0,gpu=0,cpu=0,qpu=0,lost=0,mismatch=0;
+  var uniqueHosts=new Set();
   for(var i=0;i<nodes.length;i++){
     var n=nodes[i];
-    var baseIP=(n.ip||'').split(':')[0];
-    uniqueIPs.add(baseIP);
-    if(n.active){
+    uniqueHosts.add(n.ip||n.address||'');
+    var s=n.status||'';
+    if(s==='active'){
       active++;
-      activeUniqueIPs.add(baseIP);
-      if(n.type==='GPU')gpu++;else cpu++;
-    }
+      if(n.type==='GPU')gpu++;
+      else if(n.type==='QPU')qpu++;
+      else cpu++;
+    } else if(s==='lost'){ lost++; }
+    else if(s==='version_mismatch'){ mismatch++; }
   }
-  var uniqueOps=uniqueIPs.size;
-  var multiNodeIPs=nodes.reduce(function(acc,n){
-    var ip=(n.ip||'').split(':')[0]; acc[ip]=(acc[ip]||0)+1; return acc;
-  },{});
-  var sybilCount=Object.values(multiNodeIPs).filter(function(c){return c>1;}).length;
-
   document.getElementById('sgrid').innerHTML=
-    mkCard('Node Instances',nodes.length.toLocaleString(),'total entries in log','var(--text)')+
-    mkCard('Unique Operators',uniqueOps.toLocaleString(),'distinct IPs','var(--accent)')+
-    mkCard('Active Now',active.toLocaleString(),'last 15 min','var(--green)')+
-    mkCard('GPU Active',gpu,'CUDA nodes','var(--gpu)')+
-    mkCard('CPU Active',cpu,'CPU nodes','var(--cpu)')+
-    mkCard('Multi-Node IPs',sybilCount.toLocaleString(),'2+ nodes same IP','var(--orange)')+
-    mkCard('Offline',(nodes.length-active).toLocaleString(),'>15 min ago','var(--red)');
+    mkCard('Total Nodes',nodes.length.toLocaleString(),'ever seen on network','var(--text)')+
+    mkCard('Active',active.toLocaleString(),'real-time from telemetry','var(--green)')+
+    mkCard('CPU Active',cpu.toLocaleString(),'active CPU nodes','var(--cpu)')+
+    mkCard('GPU Active',gpu.toLocaleString(),'active GPU nodes','var(--gpu)')+
+    mkCard('QPU Active',qpu.toLocaleString(),'quantum nodes','var(--accent)')+
+    mkCard('Version Mismatch',mismatch.toLocaleString(),'need update','var(--orange)')+
+    mkCard('Lost',lost.toLocaleString(),'disconnected','var(--red)');
 }
 function mkCard(l,v,s,c){return '<div class="stat-card"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';}
 
@@ -423,6 +435,8 @@ function boot() {
     document.getElementById('cacheMsg').textContent='Cached: '+allNodes.length.toLocaleString()+' nodes · '+(ageMin<1?'<1':ageMin)+'m ago · fetching fresh…';
     document.getElementById('upd').textContent='Cached · refreshing…';
   }
+  // Clear old format cache
+  try { var c=loadCache(); if(c&&c.nodes&&c.nodes[0]&&!c.nodes[0].status){localStorage.removeItem('qs_telem_v1');} } catch(e){}
   fetchFresh(cache?cache.nodes:[]);
 }
 
@@ -430,7 +444,8 @@ function fetchFresh(oldNodes) {
   fetch(API_NODES)
     .then(function(r){return r.json();})
     .then(function(data){
-      var fresh=data.nodes||[];
+      var rawNodes=data.nodes||[];
+      var fresh=rawNodes.map(normalizeNode);
       var merged=oldNodes.length>0?mergeNodes(oldNodes,fresh):fresh;
       allNodes=merged;
       saveCache(merged);
@@ -483,8 +498,9 @@ function renderRows(){
   var html='';
   for(var i=start;i<end;i++){
     var n=filtered[i],me=isMe(n);
-    var res=n.type==='GPU'?(n.gpus+'GPU+'+n.cpus+'C'):(n.cpus>0?n.cpus+' Cores':'—');
-    var ip=n.ip==='local'?'DarkSeidBull Node':n.ip;
+    var res=n.type==='GPU'?(n.gpus+'GPU+'+n.cpus+'C'):n.type==='QPU'?'QPU':(n.cpus>0?n.cpus+' Cores':'—');
+    var statusLabel={'active':'active','lost':'lost','version_mismatch':'v.mismatch','initial_peer':'peer','unknown':'—'};
+    var ip=n.ip||n.address||'—';
     html+='<div class="nrow" data-idx="'+i+'">'
       +'<div style="font-size:11px;color:var(--muted);pointer-events:none">'+(i+1)+'</div>'
       +'<div class="nname'+(me?' me':'')+'" title="'+esc(n.name)+'">'+(me?'⚡ ':'')+esc(n.name)+'</div>'
