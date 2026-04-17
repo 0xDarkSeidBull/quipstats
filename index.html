@@ -38,8 +38,8 @@ header { padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: fl
 .container { max-width:1300px; margin:0 auto; padding:1.5rem 2rem; }
 .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:1.5rem; }
 .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-.stat-card.highlight-live { border-color: rgba(29,185,106,0.4); background: rgba(29,185,106,0.06); }
-.stat-card.highlight-ever { border-color: rgba(124,106,255,0.4); background: rgba(124,106,255,0.06); }
+.stat-card.highlight-live { border-color:rgba(29,185,106,0.4); background:rgba(29,185,106,0.06); }
+.stat-card.highlight-ever { border-color:rgba(124,106,255,0.4); background:rgba(124,106,255,0.06); }
 .stat-card .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
 .stat-card .val { font-size:28px; font-weight:700; }
 .stat-card .sub { font-size:10px; color:var(--muted); margin-top:3px; }
@@ -59,7 +59,6 @@ header { padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: fl
 .nrow:hover { background:rgba(124,106,255,.07); }
 .nrow:active { background:rgba(124,106,255,.15); }
 .nname { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none; }
-.nname.me { color:var(--accent); }
 .tag { display:inline-block; font-size:10px; padding:2px 7px; border-radius:4px; font-weight:600; pointer-events:none; }
 .tag.GPU { background:rgba(29,185,106,.15); color:var(--gpu); }
 .tag.CPU { background:rgba(55,138,221,.15); color:var(--cpu); }
@@ -84,20 +83,12 @@ footer a { color:var(--accent); text-decoration:none; }
 #mclose:hover { color:var(--text); }
 .mhead { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.2rem; gap:10px; }
 .mname { font-size:16px; font-weight:700; margin-bottom:4px; }
-.mname.me { color:var(--accent); }
 .msub { font-size:11px; color:var(--muted); word-break:break-all; margin-top:4px; }
 .mgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
 .mcard { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
 .mcard .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
 .mcard .val { font-size:24px; font-weight:700; }
 .mcard .sub { font-size:10px; color:var(--muted); margin-top:3px; }
-.mstatus { font-size:12px; margin-bottom:1rem; display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; }
-.logs-title { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
-.logs-box { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; max-height:220px; overflow-y:auto; }
-.log-line { padding:4px 0; border-bottom:1px solid var(--border); display:flex; gap:10px; font-size:11px; }
-.log-line:last-child { border-bottom:none; }
-.log-t { color:var(--accent); flex-shrink:0; font-weight:600; }
-.log-m { color:var(--muted); word-break:break-all; line-height:1.5; }
 .mnote { padding:10px 12px; color:var(--muted); font-size:11px; background:var(--bg); border:1px solid var(--border); border-radius:8px; }
 
 /* ANALYTICS */
@@ -138,7 +129,7 @@ footer a { color:var(--accent); text-decoration:none; }
 .a-spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* SYBIL DETECTOR */
+/* SYBIL */
 .sy-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:1.5rem; }
 .sy-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; position:relative; overflow:hidden; }
 .sy-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
@@ -147,13 +138,11 @@ footer a { color:var(--accent); text-decoration:none; }
 .sy-card .val { font-size:28px; font-weight:700; }
 .sy-card.danger .val{color:var(--red);} .sy-card.warn .val{color:var(--orange);} .sy-card.info .val{color:var(--cyan);} .sy-card.ok .val{color:var(--green);} .sy-card.yellow .val{color:var(--yellow);}
 .sy-card .sub { font-size:10px; color:var(--muted); margin-top:3px; }
-
 .sy-alert { background:rgba(226,75,75,.08); border:1px solid rgba(226,75,75,.3); border-left:4px solid var(--red); border-radius:8px; padding:16px 20px; margin-bottom:1.5rem; display:none; align-items:center; gap:16px; }
 .sy-alert.show { display:flex; }
 .sy-alert-icon { font-size:24px; flex-shrink:0; }
 .sy-alert-title { font-size:16px; font-weight:700; color:var(--red); }
 .sy-alert-desc { font-size:12px; color:var(--muted); margin-top:2px; }
-
 .sy-controls { display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap; align-items:center; }
 .sy-controls input { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; flex:1; min-width:200px; }
 .sy-controls input:focus { border-color:var(--red); }
@@ -163,23 +152,19 @@ footer a { color:var(--accent); text-decoration:none; }
 .sy-sort { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; color:var(--text); font-family:inherit; font-size:12px; outline:none; cursor:pointer; }
 .sy-export { background:transparent; border:1px solid var(--border); color:var(--muted); font-family:inherit; font-size:11px; padding:8px 16px; border-radius:8px; cursor:pointer; letter-spacing:1px; }
 .sy-export:hover { border-color:var(--cyan); color:var(--cyan); }
-
 .sy-section-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
 .sy-section-title { font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:10px; }
 .sy-count-badge { background:rgba(226,75,75,.12); border:1px solid rgba(226,75,75,.3); color:var(--red); font-size:11px; padding:3px 10px; border-radius:20px; }
-
 .ip-list { display:flex; flex-direction:column; gap:10px; }
 .ip-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; transition:border-color .2s; }
 .ip-card:hover { border-color:rgba(226,75,75,.3); }
-.ip-card.critical { border-left:3px solid var(--red); }
-.ip-card.high     { border-left:3px solid var(--orange); }
-.ip-card.medium   { border-left:3px solid var(--yellow); }
+.ip-card.critical{border-left:3px solid var(--red);} .ip-card.high{border-left:3px solid var(--orange);} .ip-card.medium{border-left:3px solid var(--yellow);}
 .ip-hdr { display:flex; align-items:center; padding:14px 18px; cursor:pointer; gap:14px; user-select:none; flex-wrap:wrap; }
 .ip-hdr:hover { background:rgba(255,255,255,.02); }
 .threat-badge { font-size:10px; letter-spacing:1px; padding:3px 9px; border-radius:4px; font-weight:700; min-width:72px; text-align:center; flex-shrink:0; }
-.badge-critical { background:rgba(226,75,75,.2); color:var(--red); border:1px solid rgba(226,75,75,.4); }
-.badge-high     { background:rgba(249,115,22,.2); color:var(--orange); border:1px solid rgba(249,115,22,.4); }
-.badge-medium   { background:rgba(251,191,36,.15); color:var(--yellow); border:1px solid rgba(251,191,36,.3); }
+.badge-critical{background:rgba(226,75,75,.2);color:var(--red);border:1px solid rgba(226,75,75,.4);}
+.badge-high{background:rgba(249,115,22,.2);color:var(--orange);border:1px solid rgba(249,115,22,.4);}
+.badge-medium{background:rgba(251,191,36,.15);color:var(--yellow);border:1px solid rgba(251,191,36,.3);}
 .ip-addr { font-family:'SF Mono','Fira Code',monospace; font-size:14px; flex:1; }
 .ip-nodecount { display:flex; align-items:baseline; gap:6px; }
 .ip-nodecount .num { font-size:24px; font-weight:700; color:var(--red); }
@@ -188,7 +173,6 @@ footer a { color:var(--accent); text-decoration:none; }
 .ip-wallets span { color:var(--cyan); }
 .chevron { color:var(--muted); font-size:11px; transition:transform .25s; flex-shrink:0; }
 .ip-card.open .chevron { transform:rotate(180deg); }
-
 .nodes-table { border-top:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .35s ease; }
 .ip-card.open .nodes-table { max-height:2000px; }
 .table-inner { padding:0 18px 14px; }
@@ -200,16 +184,13 @@ footer a { color:var(--accent); text-decoration:none; }
 .wallet-none { color:var(--muted); font-style:italic; font-size:11px; }
 .ip-cell { font-size:10px; color:var(--muted); }
 .type-chip-sy { font-size:10px; padding:2px 7px; border-radius:4px; font-weight:600; }
-.type-cpu-sy { background:rgba(55,138,221,.15); color:var(--cpu); }
-.type-gpu-sy { background:rgba(29,185,106,.15); color:var(--gpu); }
+.type-cpu-sy{background:rgba(55,138,221,.15);color:var(--cpu);} .type-gpu-sy{background:rgba(29,185,106,.15);color:var(--gpu);}
 .sdot2 { width:7px; height:7px; border-radius:50%; display:inline-block; }
-.sdot2.on { background:var(--green); box-shadow:0 0 5px var(--green); }
-.sdot2.off { background:var(--muted); }
+.sdot2.on{background:var(--green);box-shadow:0 0 5px var(--green);} .sdot2.off{background:var(--muted);}
 .copy-btn2 { background:none; border:none; color:var(--muted); cursor:pointer; font-size:11px; padding:2px 4px; }
 .copy-btn2:hover { color:var(--cyan); }
 .report-btn { background:rgba(226,75,75,.1); border:1px solid rgba(226,75,75,.3); color:var(--red); font-family:inherit; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; letter-spacing:1px; margin-top:10px; float:right; }
 .report-btn:hover { background:rgba(226,75,75,.2); }
-
 .sy-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; gap:14px; }
 .sy-spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; }
 
@@ -230,7 +211,6 @@ footer a { color:var(--accent); text-decoration:none; }
   <div class="logo">Quip<span>Stats</span> <span style="font-size:12px;color:var(--muted);font-weight:400">Live</span></div>
   <div class="live-badge"><div class="live-dot"></div><span id="upd">Loading...</span></div>
 </header>
-
 <div class="cache-bar" id="cacheBar">
   <div class="cache-dot"></div>
   <span id="cacheMsg"></span>
@@ -243,16 +223,17 @@ footer a { color:var(--accent); text-decoration:none; }
   <button class="tab-btn" onclick="switchTab('sybil',this)">🚨 Sybil Detector</button>
 </div>
 
-<!-- LIVE NODES -->
 <div id="tab-nodes" class="tab-pane active">
 <div class="container">
   <div class="stats-grid" id="sgrid">
-    <div class="stat-card"><div class="lbl">Live Nodes</div><div class="val" style="color:var(--green)">—</div></div>
-    <div class="stat-card"><div class="lbl">Ever Seen</div><div class="val" style="color:var(--accent)">—</div></div>
-    <div class="stat-card"><div class="lbl">Active Now</div><div class="val" style="color:var(--green)">—</div></div>
-    <div class="stat-card"><div class="lbl">GPU Active</div><div class="val" style="color:var(--gpu)">—</div></div>
-    <div class="stat-card"><div class="lbl">CPU Active</div><div class="val" style="color:var(--cpu)">—</div></div>
-    <div class="stat-card"><div class="lbl">Offline</div><div class="val" style="color:var(--red)">—</div></div>
+    <div class="stat-card highlight-live"><div class="lbl">🟢 Live Nodes</div><div class="val" style="color:var(--green)">—</div><div class="sub">current API snapshot</div></div>
+    <div class="stat-card highlight-ever"><div class="lbl">📦 Ever Seen</div><div class="val" style="color:var(--accent)">—</div><div class="sub">all-time merged count</div></div>
+    <div class="stat-card"><div class="lbl">Active Now</div><div class="val" style="color:var(--green)">—</div><div class="sub">—</div></div>
+    <div class="stat-card"><div class="lbl">CPU Active</div><div class="val" style="color:var(--cpu)">—</div><div class="sub">—</div></div>
+    <div class="stat-card"><div class="lbl">GPU Active</div><div class="val" style="color:var(--gpu)">—</div><div class="sub">—</div></div>
+    <div class="stat-card"><div class="lbl">QPU Active</div><div class="val" style="color:var(--accent)">—</div><div class="sub">—</div></div>
+    <div class="stat-card"><div class="lbl">Ver. Mismatch</div><div class="val" style="color:var(--orange)">—</div><div class="sub">—</div></div>
+    <div class="stat-card"><div class="lbl">Lost</div><div class="val" style="color:var(--red)">—</div><div class="sub">—</div></div>
   </div>
   <div class="controls">
     <input id="srch" type="text" placeholder="Search node name or IP..." />
@@ -271,7 +252,6 @@ footer a { color:var(--accent); text-decoration:none; }
 </div>
 </div>
 
-<!-- ANALYTICS -->
 <div id="tab-analytics" class="tab-pane">
 <div class="container">
   <div id="a-loading" class="a-loading"><div class="a-spinner"></div><span style="color:var(--muted);font-size:12px">Analysing network data…</span></div>
@@ -296,15 +276,11 @@ footer a { color:var(--accent); text-decoration:none; }
 </div>
 </div>
 
-<!-- SYBIL DETECTOR -->
 <div id="tab-sybil" class="tab-pane">
 <div class="container">
   <div class="sy-alert" id="sy-alert">
     <div class="sy-alert-icon">🚨</div>
-    <div>
-      <div class="sy-alert-title" id="sy-alert-title">SYBIL NODES DETECTED</div>
-      <div class="sy-alert-desc" id="sy-alert-desc">Loading analysis...</div>
-    </div>
+    <div><div class="sy-alert-title" id="sy-alert-title">SYBIL NODES DETECTED</div><div class="sy-alert-desc" id="sy-alert-desc">Loading analysis...</div></div>
   </div>
   <div class="sy-stats">
     <div class="sy-card danger"><div class="lbl">⚠ Duplicate IPs</div><div class="val" id="sy-dupes">—</div><div class="sub">IPs running 2+ nodes</div></div>
@@ -313,7 +289,6 @@ footer a { color:var(--accent); text-decoration:none; }
     <div class="sy-card ok"><div class="lbl">✅ Unique IPs</div><div class="val" id="sy-unique">—</div><div class="sub">Real operators</div></div>
     <div class="sy-card yellow"><div class="lbl">📊 Sybil Rate</div><div class="val" id="sy-rate">—</div><div class="sub">% nodes duplicated</div></div>
   </div>
-
   <div class="sy-controls">
     <input id="sy-srch" type="text" placeholder="Search IP, node name or wallet..." />
     <button class="sy-fbtn on" id="sy-f2" onclick="setSyFilter(2,this)">All 2+</button>
@@ -327,7 +302,6 @@ footer a { color:var(--accent); text-decoration:none; }
     </select>
     <button class="sy-export" onclick="exportSybilCSV()">⬇ Export CSV</button>
   </div>
-
   <div id="sy-loading" class="sy-loading"><div class="sy-spinner"></div><span style="color:var(--muted);font-size:12px">Scanning for sybil nodes...</span></div>
   <div id="sy-content" style="display:none">
     <div class="sy-section-hdr">
@@ -353,14 +327,11 @@ footer a { color:var(--accent); text-decoration:none; }
 </div>
 
 <script>
-var API_NODES    = 'https://api.republicstats.xyz/api/quip/telemetry/nodes';
-var API_BLOCKS   = 'https://api.republicstats.xyz/api/quip/telemetry/blocks';
-var API_LOCAL    = 'https://api.republicstats.xyz/api/quip/node/local';
-var PER_PAGE     = 50;
-var CACHE_KEY    = 'qs_telem_v1';
-var CACHE_TTL    = 5 * 60 * 1000;
+var API_NODES = 'https://api.republicstats.xyz/api/quip/telemetry/nodes';
+var API_LOCAL = 'https://api.republicstats.xyz/api/quip/node/local';
+var PER_PAGE  = 50;
+var CACHE_KEY = 'qs_telem_v2'; // v2 — purana v1 cache auto-ignore hoga
 
-// ── CHANGE 1: freshNodes variable add kiya ──
 var allNodes=[], freshNodes=[], filtered=[], curPage=1, curFilt='all';
 var analyticsBuilt=false, aCharts={};
 var allDupes=[], syMinCount=2, sybilBuilt=false;
@@ -369,31 +340,58 @@ Chart.defaults.color='#6b6b8a';
 Chart.defaults.borderColor='#1e1e2e';
 Chart.defaults.font.family="'SF Mono','Fira Code',monospace";
 
-function saveCache(nodes) { try { localStorage.setItem(CACHE_KEY, JSON.stringify({nodes:nodes, ts:Date.now()})); } catch(e){} }
-function loadCache() { try { var r=localStorage.getItem(CACHE_KEY); return r?JSON.parse(r):null; } catch(e){ return null; } }
-function normalizeNode(n) {
-  var status = n.status || 'unknown';
+function saveCache(nodes){ try{localStorage.setItem(CACHE_KEY,JSON.stringify({nodes:nodes,ts:Date.now()}));}catch(e){} }
+function loadCache(){ try{var r=localStorage.getItem(CACHE_KEY);return r?JSON.parse(r):null;}catch(e){return null;} }
+
+// ══════════════════════════════════════════════════════
+// PERMANENT FIX: normalizeNode
+// Pehle: address aur name dono empty hone par '' key banti thi
+//        → sab nodes ek hi slot pe overwrite ho jaate the → nodes gayab
+// Ab:    har node ko guaranteed unique uid milta hai
+//        uid = address > miner_id > (ip + type + cpus + index)
+// ══════════════════════════════════════════════════════
+function normalizeNode(n, idx) {
+  var status  = n.status    || 'unknown';
+  var addr    = n.address   || '';
+  var minerId = n.miner_id  || '';
+  var host    = n.public_host || (addr ? addr.split(':')[0] : '') || '';
+  var name    = minerId || addr || host || ('node_' + idx);
+  // Unique key: prefer full address, then miner_id, then composite fallback
+  var uid = addr || minerId || (host + '_' + (n.node_type||'CPU') + '_' + (n.num_cpus||0) + '_' + idx);
   return {
-    name:       n.miner_id || n.address || '',
-    ip:         n.public_host || (n.address||'').split(':')[0] || '',
-    type:       n.node_type || 'CPU',
+    uid:        uid,
+    name:       name,
+    ip:         host,
+    type:       n.node_type  || 'CPU',
     active:     status === 'active',
     status:     status,
-    cpus:       n.num_cpus || 0,
+    cpus:       n.num_cpus   || 0,
     gpus:       n.node_type === 'GPU' ? 1 : 0,
-    last_seen:  n.last_seen || 0,
+    last_seen:  n.last_seen  || 0,
     first_seen: n.first_seen || 0,
-    address:    n.address || '',
+    address:    addr,
   };
 }
-function mergeNodes(old, fresh) {
-  var map={};
-  old.forEach(function(n){ map[n.address||n.name]=n; });
-  fresh.forEach(function(n){ map[n.address||n.name]=n; });
+
+// ══════════════════════════════════════════════════════
+// PERMANENT FIX: mergeNodes
+// Pehle: map[n.address||n.name] → '' key collision se nodes delete hote the
+// Ab:    map[n.uid] → har node apni unique slot pe, koi bhi gayab nahi hoga
+// ══════════════════════════════════════════════════════
+function mergeNodes(oldNodes, freshArr) {
+  var map = {};
+  oldNodes.forEach(function(n) {
+    var key = n.uid || n.address || n.name;
+    if(key) map[key] = n;
+  });
+  freshArr.forEach(function(n) {
+    var key = n.uid || n.address || n.name;
+    if(key) map[key] = n; // fresh data se update, delete nahi
+  });
   return Object.values(map);
 }
 
-function switchTab(name, btn) {
+function switchTab(name,btn){
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
   btn.classList.add('active');
@@ -402,38 +400,28 @@ function switchTab(name, btn) {
   if(name==='sybil'&&allNodes.length>0&&!sybilBuilt) buildSybil(allNodes);
 }
 
-// ── CHANGE 3: renderStats updated — Live Nodes + Ever Seen alag cards ──
-function renderStats(nodes) {
+function renderStats(nodes){
   var active=0,gpu=0,cpu=0,qpu=0,lost=0,mismatch=0;
   for(var i=0;i<nodes.length;i++){
-    var n=nodes[i], s=n.status||'';
-    if(s==='active'){
-      active++;
-      if(n.type==='GPU')gpu++;
-      else if(n.type==='QPU')qpu++;
-      else cpu++;
-    } else if(s==='lost'){ lost++; }
-    else if(s==='version_mismatch'){ mismatch++; }
+    var n=nodes[i],s=n.status||'';
+    if(s==='active'){active++;if(n.type==='GPU')gpu++;else if(n.type==='QPU')qpu++;else cpu++;}
+    else if(s==='lost')lost++;
+    else if(s==='version_mismatch')mismatch++;
   }
-  // Live = freshNodes (current API snapshot), Ever Seen = merged allNodes
   var liveCount = freshNodes.length > 0 ? freshNodes.length : nodes.length;
-  document.getElementById('sgrid').innerHTML=
-    mkCard('🟢 Live Nodes', liveCount.toLocaleString(), 'current API snapshot', 'var(--green)', 'highlight-live')+
-    mkCard('📦 Ever Seen', nodes.length.toLocaleString(), 'all-time merged count', 'var(--accent)', 'highlight-ever')+
-    mkCard('Active', active.toLocaleString(), 'real-time from telemetry', 'var(--green)', '')+
-    mkCard('CPU Active', cpu.toLocaleString(), 'active CPU nodes', 'var(--cpu)', '')+
-    mkCard('GPU Active', gpu.toLocaleString(), 'active GPU nodes', 'var(--gpu)', '')+
-    mkCard('QPU Active', qpu.toLocaleString(), 'quantum nodes', 'var(--accent)', '')+
-    mkCard('Version Mismatch', mismatch.toLocaleString(), 'need update', 'var(--orange)', '')+
-    mkCard('Lost', lost.toLocaleString(), 'disconnected', 'var(--red)', '');
-}
-function mkCard(l,v,s,c,extraClass){
-  return '<div class="stat-card '+(extraClass||'')+'"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+v+'</div><div class="sub">'+s+'</div></div>';
+  var cards = document.getElementById('sgrid').querySelectorAll('.stat-card');
+  // Update existing cards (preserves styling)
+  var vals = [liveCount, nodes.length, active, cpu, gpu, qpu, mismatch, lost];
+  var subs = ['current API snapshot','all-time merged count','real-time from telemetry','active CPU nodes','active GPU nodes','quantum nodes','need update','disconnected'];
+  cards.forEach(function(c,i){
+    c.querySelector('.val').textContent = vals[i].toLocaleString();
+    c.querySelector('.sub').textContent = subs[i];
+  });
 }
 
-function boot() {
+function boot(){
   var cache=loadCache();
-  if(cache&&cache.nodes&&cache.nodes.length>0) {
+  if(cache&&cache.nodes&&cache.nodes.length>0){
     allNodes=cache.nodes;
     renderStats(allNodes);
     applyFilter();
@@ -442,20 +430,17 @@ function boot() {
     document.getElementById('cacheMsg').textContent='Cached: '+allNodes.length.toLocaleString()+' nodes · '+(ageMin<1?'<1':ageMin)+'m ago · fetching fresh…';
     document.getElementById('upd').textContent='Cached · refreshing…';
   }
-  try { var c=loadCache(); if(c&&c.nodes&&c.nodes[0]&&!c.nodes[0].status){localStorage.removeItem('qs_telem_v1');} } catch(e){}
   fetchFresh(cache?cache.nodes:[]);
 }
 
-function fetchFresh(oldNodes) {
+function fetchFresh(oldNodes){
   fetch(API_NODES)
     .then(function(r){return r.json();})
     .then(function(data){
       var rawNodes=data.nodes||[];
-      var fresh=rawNodes.map(normalizeNode);
-
-      // ── CHANGE 2: freshNodes store karo (sirf current snapshot) ──
-      freshNodes = fresh;
-
+      // index pass karo — uid fallback ke liye zaroori
+      var fresh=rawNodes.map(function(n,i){return normalizeNode(n,i);});
+      freshNodes=fresh;
       var merged=oldNodes.length>0?mergeNodes(oldNodes,fresh):fresh;
       allNodes=merged;
       saveCache(merged);
@@ -499,7 +484,6 @@ function applyFilter(){
   renderRows();renderPgn();
 }
 
-function isMe(n){return n.name.toLowerCase().indexOf('darkseid')>=0;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function renderRows(){
@@ -507,12 +491,12 @@ function renderRows(){
   if(!filtered.length){document.getElementById('nlist').innerHTML='<div class="empty">No nodes found</div>';return;}
   var html='';
   for(var i=start;i<end;i++){
-    var n=filtered[i],me=isMe(n);
+    var n=filtered[i];
     var res=n.type==='GPU'?(n.gpus+'GPU+'+n.cpus+'C'):n.type==='QPU'?'QPU':(n.cpus>0?n.cpus+' Cores':'—');
     var ip=n.ip||n.address||'—';
     html+='<div class="nrow" data-idx="'+i+'">'
       +'<div style="font-size:11px;color:var(--muted);pointer-events:none">'+(i+1)+'</div>'
-      +'<div class="nname'+(me?' me':'')+'" title="'+esc(n.name)+'">'+(me?'⚡ ':'')+esc(n.name)+'</div>'
+      +'<div class="nname" title="'+esc(n.name)+'">'+esc(n.name)+'</div>'
       +'<div><span class="tag '+n.type+'">'+n.type+'</span></div>'
       +'<div style="font-size:12px;pointer-events:none">'+res+'</div>'
       +'<div><span class="dot '+(n.active?'on':'off')+'"></span></div>'
@@ -523,7 +507,14 @@ function renderRows(){
 }
 document.getElementById('nlist').addEventListener('click',function(e){
   var el=e.target;
-  while(el&&el!==this){if(el.classList&&el.classList.contains('nrow')){var idx=parseInt(el.getAttribute('data-idx'),10);if(!isNaN(idx)&&filtered[idx])openModal(filtered[idx]);return;}el=el.parentNode;}
+  while(el&&el!==this){
+    if(el.classList&&el.classList.contains('nrow')){
+      var idx=parseInt(el.getAttribute('data-idx'),10);
+      if(!isNaN(idx)&&filtered[idx])openModal(filtered[idx]);
+      return;
+    }
+    el=el.parentNode;
+  }
 });
 
 function renderPgn(){
@@ -539,20 +530,7 @@ function goPage(p){curPage=p;renderRows();renderPgn();window.scrollTo(0,0);}
 function openModal(node){
   document.getElementById('overlay').classList.add('show');
   document.getElementById('mbody').innerHTML='<div class="empty">Loading...</div>';
-  if(isMe(node)){
-    fetch(API_LOCAL).then(function(r){return r.json();}).then(showLocalModal)
-      .catch(function(err){document.getElementById('mbody').innerHTML='<div style="color:var(--red);padding:1rem">Error: '+err.message+'</div>';});
-  }else{showRemoteModal(node);}
-}
-function showLocalModal(d){
-  var lastSeen=d.last_seen?new Date(d.last_seen*1000).toLocaleTimeString():'—';
-  var logs=(d.recent_logs||[]).slice().reverse();
-  var logsHtml=logs.map(function(l){return '<div class="log-line"><span class="log-t">'+esc(l.time)+'</span><span class="log-m">'+esc(l.msg)+'</span></div>';}).join('')||'<span style="color:var(--muted)">No logs</span>';
-  document.getElementById('mbody').innerHTML=
-    '<div class="mhead"><div><div class="mname me">⚡ '+esc(d.name)+'</div><div class="msub">'+esc(d.full_id)+'</div></div><span class="tag CPU" style="flex-shrink:0">'+esc(d.type)+' · '+esc(d.version)+'</span></div>'
-    +'<div class="mgrid">'+mkMcard('Blocks Mined',d.blocks_mined,'avg '+d.avg_block_time+'s / block','var(--text)')+mkMcard('Best Energy',d.best_energy||'—','lower = better','var(--gpu)')+mkMcard('CPU Miners',d.active_miners,'active workers','var(--cpu)')+mkMcard('Uptime',d.uptime_pct+'%',d.version,'var(--green)')+'</div>'
-    +'<div class="mstatus"><span class="dot '+(d.active?'on':'off')+'"></span><span style="color:'+(d.active?'var(--green)':'var(--red)')+'"> '+(d.active?'Online':'Offline')+'</span><span style="color:var(--muted)"> · Last seen: '+lastSeen+'</span></div>'
-    +'<div class="logs-title">Recent Logs</div><div class="logs-box">'+logsHtml+'</div>';
+  showRemoteModal(node);
 }
 function showRemoteModal(n){
   var lastSeen=n.last_seen?new Date(n.last_seen*1000).toLocaleTimeString():'—';
@@ -600,7 +578,7 @@ function buildAnalytics(nodes){
     mkLegend('legActiveType',atL,atV,atC);
     var buckets=[1,2,4,6,8,12,16,24,32,48,64,96];
     var bData=buckets.map(function(b,i){return coresArr.filter(function(c){return i<buckets.length-1?c===b:c>=96;}).length;});
-    aCharts.cores=new Chart(document.getElementById('cCores'),{type:'bar',data:{labels:buckets.map(function(b,i){return b===96?'96+':String(b);}),datasets:[{data:bData,backgroundColor:'rgba(55,138,221,0.25)',borderColor:'#378add',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#16161f',borderColor:'#1e1e2e',borderWidth:1}},scales:{x:{grid:{color:'#1e1e2e'},ticks:{font:{size:10}}},y:{grid:{color:'#1e1e2e'},beginAtZero:true,ticks:{font:{size:10}}}}}});
+    aCharts.cores=new Chart(document.getElementById('cCores'),{type:'bar',data:{labels:buckets.map(function(b){return b===96?'96+':String(b);}),datasets:[{data:bData,backgroundColor:'rgba(55,138,221,0.25)',borderColor:'#378add',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#16161f',borderColor:'#1e1e2e',borderWidth:1}},scales:{x:{grid:{color:'#1e1e2e'},ticks:{font:{size:10}}},y:{grid:{color:'#1e1e2e'},beginAtZero:true,ticks:{font:{size:10}}}}}});
     if(coresArr.length>0){
       var maxC=Math.max.apply(null,coresArr),avgC=Math.round(coresArr.reduce(function(a,b){return a+b;},0)/coresArr.length);
       var srt=[].concat(coresArr).sort(function(a,b){return a-b;}),medC=srt[Math.floor(srt.length/2)];
@@ -625,99 +603,61 @@ function buildAnalytics(nodes){
 }
 function mkMini(l,v,s){return '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--text)">'+v+'</div><div style="font-size:9px;color:var(--muted);margin-top:2px">'+l+'<br>'+s+'</div></div>';}
 
-/* ── SYBIL DETECTOR ── */
-function extractWallet(name) {
-  if(!name) return null;
-  var m = name.match(/(0x[a-fA-F0-9]{40})/);
-  return m ? m[1] : null;
-}
+/* ── SYBIL ── */
+function extractWallet(name){if(!name)return null;var m=name.match(/(0x[a-fA-F0-9]{40})/);return m?m[1]:null;}
+function threatLevel(n){if(n>=50)return{label:'CRITICAL',cls:'critical',badge:'badge-critical'};if(n>=10)return{label:'HIGH',cls:'high',badge:'badge-high'};return{label:'MEDIUM',cls:'medium',badge:'badge-medium'};}
 
-function threatLevel(n) {
-  if(n >= 50) return {label:'CRITICAL', cls:'critical', badge:'badge-critical'};
-  if(n >= 10) return {label:'HIGH', cls:'high', badge:'badge-high'};
-  return {label:'MEDIUM', cls:'medium', badge:'badge-medium'};
-}
-
-function buildSybil(nodes) {
+function buildSybil(nodes){
   document.getElementById('sy-loading').style.display='flex';
   document.getElementById('sy-content').style.display='none';
   setTimeout(function(){
     var ipMap={};
     nodes.forEach(function(n){
-      var ip=n.ip?(n.ip.split(':')[0]):n.ip;
-      if(!ipMap[ip]) ipMap[ip]=[];
+      var ip=n.ip?(n.ip.split(':')[0]):(n.address||'unknown');
+      if(!ipMap[ip])ipMap[ip]=[];
       ipMap[ip].push(n);
     });
-
-    allDupes=Object.entries(ipMap)
-      .filter(function(e){return e[1].length>1;})
-      .map(function(e){
-        var ip=e[0], arr=e[1];
-        var wallets=[...new Set(arr.map(function(n){return extractWallet(n.name);}).filter(Boolean))];
-        return {ip:ip, nodes:arr, walletCount:wallets.length};
-      });
-
-    var totalNodes=nodes.length;
-    var uniqueIPs=Object.keys(ipMap).length;
-    var dupeIPs=allDupes.length;
+    allDupes=Object.entries(ipMap).filter(function(e){return e[1].length>1;}).map(function(e){
+      var ip=e[0],arr=e[1];
+      var wallets=[...new Set(arr.map(function(n){return extractWallet(n.name);}).filter(Boolean))];
+      return{ip:ip,nodes:arr,walletCount:wallets.length};
+    });
+    var totalNodes=nodes.length,uniqueIPs=Object.keys(ipMap).length,dupeIPs=allDupes.length;
     var extraNodes=allDupes.reduce(function(s,d){return s+d.nodes.length-1;},0);
     var rate=((extraNodes/totalNodes)*100).toFixed(1);
-
     document.getElementById('sy-dupes').textContent=dupeIPs.toLocaleString();
     document.getElementById('sy-extra').textContent=extraNodes.toLocaleString();
     document.getElementById('sy-total').textContent=totalNodes.toLocaleString();
     document.getElementById('sy-unique').textContent=uniqueIPs.toLocaleString();
     document.getElementById('sy-rate').textContent=rate+'%';
-
-    var sorted=[].concat(allDupes).sort(function(a,b){return b.nodes.length-a.nodes.length;});
-    var top=sorted[0];
+    var sorted=[].concat(allDupes).sort(function(a,b){return b.nodes.length-a.nodes.length;}),top=sorted[0];
     document.getElementById('sy-alert').classList.add('show');
     document.getElementById('sy-alert-title').textContent='🚨 '+dupeIPs+' IPs RUNNING MULTIPLE NODES';
-    document.getElementById('sy-alert-desc').textContent=
-      extraNodes.toLocaleString()+' extra nodes detected ('+rate+'% of network). Top offender: '+(top?top.ip:'-')+' with '+(top?top.nodes.length:0)+' nodes.';
-
+    document.getElementById('sy-alert-desc').textContent=extraNodes.toLocaleString()+' extra nodes detected ('+rate+'% of network). Top offender: '+(top?top.ip:'-')+' with '+(top?top.nodes.length:0)+' nodes.';
     document.getElementById('sy-loading').style.display='none';
     document.getElementById('sy-content').style.display='block';
-    sybilBuilt=true;
-    renderSybil();
+    sybilBuilt=true;renderSybil();
   },50);
 }
 
-document.getElementById('sy-srch').addEventListener('input', renderSybil);
+document.getElementById('sy-srch').addEventListener('input',renderSybil);
+function setSyFilter(n,btn){syMinCount=n;document.querySelectorAll('.sy-fbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderSybil();}
 
-function setSyFilter(n, btn) {
-  syMinCount=n;
-  document.querySelectorAll('.sy-fbtn').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');
-  renderSybil();
-}
-
-function renderSybil() {
+function renderSybil(){
   var q=document.getElementById('sy-srch').value.toLowerCase().trim();
   var sortBy=document.getElementById('sy-sort').value;
-
-  var filtered=allDupes.filter(function(d){
-    if(d.nodes.length<syMinCount) return false;
-    if(!q) return true;
-    if(d.ip.indexOf(q)>=0) return true;
-    return d.nodes.some(function(n){
-      return (n.name||'').toLowerCase().indexOf(q)>=0 ||
-             (extractWallet(n.name||'')||'').toLowerCase().indexOf(q)>=0;
-    });
+  var filt=allDupes.filter(function(d){
+    if(d.nodes.length<syMinCount)return false;
+    if(!q)return true;
+    if(d.ip.indexOf(q)>=0)return true;
+    return d.nodes.some(function(n){return(n.name||'').toLowerCase().indexOf(q)>=0||(extractWallet(n.name||'')||'').toLowerCase().indexOf(q)>=0;});
   });
-
-  if(sortBy==='count-asc') filtered.sort(function(a,b){return a.nodes.length-b.nodes.length;});
-  else if(sortBy==='wallets-desc') filtered.sort(function(a,b){return b.walletCount-a.walletCount;});
-  else filtered.sort(function(a,b){return b.nodes.length-a.nodes.length;});
-
-  document.getElementById('sy-shown').textContent=filtered.length+' IPs';
-
-  if(!filtered.length){
-    document.getElementById('ip-list').innerHTML='<div class="empty">No results found for current filters.</div>';
-    return;
-  }
-
-  var html=filtered.map(function(d,i){
+  if(sortBy==='count-asc')filt.sort(function(a,b){return a.nodes.length-b.nodes.length;});
+  else if(sortBy==='wallets-desc')filt.sort(function(a,b){return b.walletCount-a.walletCount;});
+  else filt.sort(function(a,b){return b.nodes.length-a.nodes.length;});
+  document.getElementById('sy-shown').textContent=filt.length+' IPs';
+  if(!filt.length){document.getElementById('ip-list').innerHTML='<div class="empty">No results found for current filters.</div>';return;}
+  var html=filt.map(function(d,i){
     var t=threatLevel(d.nodes.length);
     var wallets=[...new Set(d.nodes.map(function(n){return extractWallet(n.name||'');}).filter(Boolean))];
     var nodeRows=d.nodes.map(function(n){
@@ -731,7 +671,6 @@ function renderSybil() {
         +'<div class="grid-cell"><span class="type-chip-sy type-'+(n.type||'CPU').toLowerCase()+'-sy">'+esc((n.type||'CPU').toUpperCase())+'</span></div>'
         +'<div class="grid-cell" style="justify-content:center"><span class="sdot2 '+(n.active?'on':'off')+'"></span></div>';
     }).join('');
-
     return '<div class="ip-card '+t.cls+'" id="sycard-'+i+'">'
       +'<div class="ip-hdr" onclick="toggleSy('+i+')">'
       +'<span class="threat-badge '+t.badge+'">'+t.label+'</span>'
@@ -741,60 +680,34 @@ function renderSybil() {
       +'<span class="chevron">▼</span>'
       +'</div>'
       +'<div class="nodes-table"><div class="table-inner">'
-      +'<div class="nodes-grid">'
-      +'<div class="grid-head">Node Name</div><div class="grid-head">Wallet</div><div class="grid-head">IP:Port</div><div class="grid-head">Type</div><div class="grid-head">Status</div>'
-      +nodeRows
-      +'</div>'
+      +'<div class="nodes-grid"><div class="grid-head">Node Name</div><div class="grid-head">Wallet</div><div class="grid-head">IP:Port</div><div class="grid-head">Type</div><div class="grid-head">Status</div>'
+      +nodeRows+'</div>'
       +'<button class="report-btn" onclick="copyDiscordReport(\''+esc(d.ip)+'\','+d.nodes.length+',event)">📋 Copy Discord Report</button>'
       +'</div></div></div>';
   }).join('');
-
   document.getElementById('ip-list').innerHTML=html;
 }
 
-function toggleSy(i) { document.getElementById('sycard-'+i).classList.toggle('open'); }
-
-function copySy(text, btn) {
-  navigator.clipboard.writeText(text);
-  btn.textContent='✓';
-  setTimeout(function(){btn.textContent='⧉';},1500);
-}
-
-function copyDiscordReport(ip, count, e) {
+function toggleSy(i){document.getElementById('sycard-'+i).classList.toggle('open');}
+function copySy(text,btn){navigator.clipboard.writeText(text);btn.textContent='✓';setTimeout(function(){btn.textContent='⧉';},1500);}
+function copyDiscordReport(ip,count,e){
   e.stopPropagation();
-  var d=allDupes.find(function(x){return x.ip===ip;});
-  if(!d) return;
+  var d=allDupes.find(function(x){return x.ip===ip;});if(!d)return;
   var wallets=[...new Set(d.nodes.map(function(n){return extractWallet(n.name||'');}).filter(Boolean))];
-  var nodeList=d.nodes.slice(0,20).map(function(n){
-    var w=extractWallet(n.name||'');
-    return '  • '+(n.name||n.ip)+(w?' | '+w:'');
-  }).join('\n');
+  var nodeList=d.nodes.slice(0,20).map(function(n){var w=extractWallet(n.name||'');return '  • '+(n.name||n.ip)+(w?' | '+w:'');}).join('\n');
   var extra=d.nodes.length>20?'\n  ...and '+(d.nodes.length-20)+' more':'';
   var report='🚨 Sybil Detection Report — quipstats.xyz\nIP: '+ip+'\nNodes: '+count+' ('+wallets.length+' unique wallet'+(wallets.length!==1?'s':'')+')\nDetected: '+new Date().toUTCString()+'\n\nNodes on this IP:\n'+nodeList+extra+'\n\nData source: quipstats.xyz/sybil';
   navigator.clipboard.writeText(report);
-  var btn=e.target;
-  btn.textContent='✅ Copied!';
-  setTimeout(function(){btn.textContent='📋 Copy Discord Report';},2000);
+  var btn=e.target;btn.textContent='✅ Copied!';setTimeout(function(){btn.textContent='📋 Copy Discord Report';},2000);
 }
-
-function exportSybilCSV() {
+function exportSybilCSV(){
   var rows=[['IP','Total Nodes','Threat Level','Node Name','Wallet','Type','Active']];
-  allDupes.forEach(function(d){
-    var t=threatLevel(d.nodes.length);
-    d.nodes.forEach(function(n){
-      var w=extractWallet(n.name||'')||'';
-      rows.push([d.ip,d.nodes.length,t.label,n.name||'',w,n.type||'CPU',n.active?'Yes':'No']);
-    });
-  });
+  allDupes.forEach(function(d){var t=threatLevel(d.nodes.length);d.nodes.forEach(function(n){var w=extractWallet(n.name||'')||'';rows.push([d.ip,d.nodes.length,t.label,n.name||'',w,n.type||'CPU',n.active?'Yes':'No']);});});
   var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var blob=new Blob([csv],{type:'text/csv'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='quip-sybil-'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
+  var blob=new Blob([csv],{type:'text/csv'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='quip-sybil-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
-/* ── START ── */
 boot();
 setInterval(function(){fetchFresh(allNodes);},30000);
 </script>
