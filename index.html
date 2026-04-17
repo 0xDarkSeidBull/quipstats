@@ -351,24 +351,25 @@ function loadCache(){ try{var r=localStorage.getItem(CACHE_KEY);return r?JSON.pa
 //        uid = address > miner_id > (ip + type + cpus + index)
 // ══════════════════════════════════════════════════════
 function normalizeNode(n, idx) {
-  var status  = n.status    || 'unknown';
-  var addr    = n.address   || '';
-  var minerId = n.miner_id  || '';
-  var host    = n.public_host || (addr ? addr.split(':')[0] : '') || '';
+  var status  = n.status    || n.s  || 'unknown';
+  var addr    = n.address   || n.a  || '';
+  var minerId = n.miner_id  || n.m  || '';
+  var host    = n.public_host || n.h || (addr ? addr.split(':')[0] : '') || '';
+  var cpus    = n.num_cpus  !== undefined ? n.num_cpus : (n.c || 0);
+  var ntype   = n.node_type || n.t  || 'CPU';
   var name    = minerId || addr || host || ('node_' + idx);
-  // Unique key: prefer full address, then miner_id, then composite fallback
-  var uid = addr || minerId || (host + '_' + (n.node_type||'CPU') + '_' + (n.num_cpus||0) + '_' + idx);
+  var uid     = addr || minerId || (host + '_' + ntype + '_' + cpus + '_' + idx);
   return {
     uid:        uid,
     name:       name,
     ip:         host,
-    type:       n.node_type  || 'CPU',
+    type:       ntype,
     active:     status === 'active',
     status:     status,
-    cpus:       n.num_cpus   || 0,
-    gpus:       n.node_type === 'GPU' ? 1 : 0,
-    last_seen:  n.last_seen  || 0,
-    first_seen: n.first_seen || 0,
+    cpus:       cpus,
+    gpus:       ntype === 'GPU' ? 1 : 0,
+    last_seen:  n.last_seen  || n.ls || 0,
+    first_seen: n.first_seen || n.fs || 0,
     address:    addr,
   };
 }
@@ -434,31 +435,38 @@ function boot(){
 }
 
 function fetchFresh(oldNodes){
-  fetch(API_NODES)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var rawNodes=data.nodes||[];
-      // index pass karo — uid fallback ke liye zaroori
-      var fresh=rawNodes.map(function(n,i){return normalizeNode(n,i);});
-      freshNodes=fresh;
-      var merged=oldNodes.length>0?mergeNodes(oldNodes,fresh):fresh;
-      allNodes=merged;
-      saveCache(merged);
-      renderStats(merged);
-      applyFilter();
-      document.getElementById('upd').textContent='Updated: '+new Date().toLocaleTimeString();
-      document.getElementById('cacheBar').classList.add('show');
-      document.getElementById('cacheMsg').textContent='Live: '+fresh.length.toLocaleString()+' nodes · Ever seen: '+merged.length.toLocaleString();
-      var ft=document.getElementById('freshTag');
-      ft.classList.add('show');
-      setTimeout(function(){ft.classList.remove('show');},3000);
-      if(analyticsBuilt){destroyCharts();analyticsBuilt=false;buildAnalytics(allNodes);}
-      if(sybilBuilt){sybilBuilt=false;buildSybil(allNodes);}
-    })
-    .catch(function(err){
-      if(allNodes.length===0) document.getElementById('nlist').innerHTML='<div class="empty" style="color:var(--red)">Error: '+err.message+'</div>';
-      document.getElementById('upd').textContent='Refresh failed · retrying…';
-    });
+  var PAGE_SIZE=500,allFresh=[],page=0;
+  function fetchPage(){
+    fetch(API_NODES+'?limit='+PAGE_SIZE+'&page='+page)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var raw=data.nodes||[];
+        var fresh=raw.map(function(n,i){return normalizeNode(n,page*PAGE_SIZE+i);});
+        allFresh=allFresh.concat(fresh);
+        if(raw.length===PAGE_SIZE){page++;fetchPage();}
+        else{
+          freshNodes=allFresh;
+          var merged=oldNodes.length>0?mergeNodes(oldNodes,allFresh):allFresh;
+          allNodes=merged;
+          saveCache(merged);
+          renderStats(merged);
+          applyFilter();
+          document.getElementById('upd').textContent='Updated: '+new Date().toLocaleTimeString();
+          document.getElementById('cacheBar').classList.add('show');
+          document.getElementById('cacheMsg').textContent='Live: '+allFresh.length.toLocaleString()+' nodes · Ever seen: '+merged.length.toLocaleString();
+          var ft=document.getElementById('freshTag');
+          ft.classList.add('show');
+          setTimeout(function(){ft.classList.remove('show');},3000);
+          if(analyticsBuilt){destroyCharts();analyticsBuilt=false;buildAnalytics(allNodes);}
+          if(sybilBuilt){sybilBuilt=false;buildSybil(allNodes);}
+        }
+      })
+      .catch(function(err){
+        if(allNodes.length===0) document.getElementById('nlist').innerHTML='<div class="empty" style="color:var(--red)">Error: '+err.message+'</div>';
+        document.getElementById('upd').textContent='Refresh failed · retrying…';
+      });
+  }
+  fetchPage();
 }
 
 ['all','active','gpu','cpu','offline'].forEach(function(f){
