@@ -371,6 +371,10 @@ function normalizeNode(n, idx) {
     last_seen:  n.last_seen  || n.ls || 0,
     first_seen: n.first_seen || n.fs || 0,
     address:    addr,
+    version:    n.quip_version || n.v  || '',
+    ram:        n.memory_mb    || n.ram || 0,
+    cpu_brand:  n.cpu_brand    || '',
+    gpu_count:  n.gpu_count    || 0,
   };
 }
 
@@ -541,12 +545,31 @@ function openModal(node){
   showRemoteModal(node);
 }
 function showRemoteModal(n){
-  var lastSeen=n.last_seen?new Date(n.last_seen*1000).toLocaleTimeString():'—';
-  var res=n.type==='GPU'?(n.gpus+' GPU + '+n.cpus+' Cores'):((n.cpus||'—')+' CPU Cores');
+  var lastSeen = n.last_seen ? new Date(n.last_seen*1000).toLocaleTimeString() : '—';
+  var ramGB    = n.ram ? (n.ram/1024).toFixed(1)+' GB' : '—';
+  var res      = n.type==='GPU' ? (n.gpu_count+'GPU + '+n.cpus+' Cores')
+               : n.type==='QPU' ? 'QPU'
+               : (n.cpus>0 ? n.cpus+' Cores' : '—');
   document.getElementById('mbody').innerHTML=
-    '<div class="mhead"><div><div class="mname">'+esc(n.name)+'</div><div class="msub">'+esc(n.ip)+'</div></div><span class="tag '+n.type+'" style="flex-shrink:0">'+n.type+'</span></div>'
-    +'<div class="mgrid">'+mkMcard('Resources',res,'','var(--cpu)')+mkMcard('Status',n.active?'Online':'Offline','',n.active?'var(--green)':'var(--red)')+mkMcard('Last Seen',lastSeen,'','var(--text)')+mkMcard('Type',n.type,'','var(--text)')+'</div>'
-    +'<div class="mnote">ℹ️ Detailed mining stats available only for locally monitored nodes.</div>';
+    '<div class="mhead">'
+      +'<div>'
+        +'<div class="mname">'+esc(n.name)+'</div>'
+        +(n.version?'<div class="msub" style="color:var(--green)">v'+esc(n.version)+'</div>':'')
+        +'<div class="msub">'+esc(n.ip)+'</div>'
+      +'</div>'
+      +'<span class="tag '+n.type+'" style="flex-shrink:0">'+n.type+'</span>'
+    +'</div>'
+    +'<div class="mgrid">'
+      +mkMcard('Resources', res, '', 'var(--cpu)')
+      +mkMcard('Status', n.active?'Online':'Offline', '', n.active?'var(--green)':'var(--red)')
+      +mkMcard('Last Seen', lastSeen, '', 'var(--text)')
+      +mkMcard('RAM', ramGB, '', 'var(--text)')
+    +'</div>'
+    +(n.cpu_brand?'<div class="mnote" style="margin-bottom:10px">🖥 '+esc(n.cpu_brand)+'</div>':'')
+    +'<div class="mgrid">'
+      +mkMcard('Node Address', n.address||n.ip||'—', '', 'var(--muted)')
+      +mkMcard('First Seen', n.first_seen?new Date(n.first_seen*1000).toLocaleDateString():'—', '', 'var(--muted)')
+    +'</div>';
 }
 function mkMcard(l,v,s,c){return '<div class="mcard"><div class="lbl">'+l+'</div><div class="val" style="color:'+c+'">'+esc(String(v))+'</div>'+(s?'<div class="sub">'+s+'</div>':'')+'</div>';}
 function closeModal(){document.getElementById('overlay').classList.remove('show');}
