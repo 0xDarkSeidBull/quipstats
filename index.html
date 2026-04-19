@@ -497,7 +497,7 @@ function applyFilter(){
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function maskIP(ip){if(!ip||ip==='—')return ip;var parts=ip.split(':'),host=parts[0],port=parts[1],oct=host.split('.');if(oct.length===4)return oct[0]+'.xx.xx.'+oct[3]+(port?':'+port:'');return ip;}
+function maskIP(ip){if(!ip||ip==='—')return ip;var clean=ip.replace(/^::ffff:/i,'');var parts=clean.split(':');var port=parts.length>1&&/^\d+$/.test(parts[parts.length-1])?parts.pop():null;var host=parts.join(':');var oct=host.split('.');if(oct.length===4){var masked=oct[0]+'.xx.xx.'+oct[3];return port?masked+':'+port:masked;}return port?host+':'+port:host;}
 
 function renderRows(){
   var start=(curPage-1)*PER_PAGE,end=Math.min(start+PER_PAGE,filtered.length);
@@ -699,7 +699,7 @@ function renderSybil(){
       var shortWallet=wallet?(wallet.slice(0,8)+'…'+wallet.slice(-6)):null;
       return '<div class="grid-cell"><span class="node-name-cell" title="'+esc(n.name||'')+'">'+esc(shortDisplay)+'</span></div>'
         +'<div class="grid-cell">'+(wallet?'<span class="wallet-addr" title="'+esc(wallet)+'">'+esc(shortWallet)+'</span><button class="copy-btn2" onclick="copySy(\''+esc(wallet)+'\',this)">⧉</button>':'<span class="wallet-none">— no wallet —</span>')+'</div>'
-        +'<div class="grid-cell"><span class="ip-cell">'+esc(maskIP(n.ip))+'</span></div>'
+        +'<div class="grid-cell"><span class="ip-cell">'+esc(n.ip)+'</span></div>'
         +'<div class="grid-cell"><span class="type-chip-sy type-'+(n.type||'CPU').toLowerCase()+'-sy">'+esc((n.type||'CPU').toUpperCase())+'</span></div>'
         +'<div class="grid-cell" style="justify-content:center"><span class="sdot2 '+(n.active?'on':'off')+'"></span></div>';
     }).join('');
