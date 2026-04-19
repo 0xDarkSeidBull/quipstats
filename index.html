@@ -497,6 +497,7 @@ function applyFilter(){
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function maskIP(ip){if(!ip||ip==='—')return ip;var parts=ip.split(':'),host=parts[0],port=parts[1],oct=host.split('.');if(oct.length===4)return oct[0]+'.xx.xx.'+oct[3]+(port?':'+port:'');return ip;}
 
 function renderRows(){
   var start=(curPage-1)*PER_PAGE,end=Math.min(start+PER_PAGE,filtered.length);
@@ -512,7 +513,7 @@ function renderRows(){
       +'<div><span class="tag '+n.type+'">'+n.type+'</span></div>'
       +'<div style="font-size:12px;pointer-events:none">'+res+'</div>'
       +'<div><span class="dot '+(n.active?'on':'off')+'"></span></div>'
-      +'<div class="ipt">'+esc(ip)+'</div>'
+      +'<div class="ipt">'+esc(maskIP(ip))+'</div>'
       +'</div>';
   }
   document.getElementById('nlist').innerHTML=html;
@@ -555,7 +556,7 @@ function showRemoteModal(n){
       +'<div>'
         +'<div class="mname">'+esc(n.name)+'</div>'
         +(n.version?'<div class="msub" style="color:var(--green)">v'+esc(n.version)+'</div>':'')
-        +'<div class="msub">'+esc(n.ip)+'</div>'
+        +'<div class="msub">'+esc(maskIP(n.ip))+'</div>'
       +'</div>'
       +'<span class="tag '+n.type+'" style="flex-shrink:0">'+n.type+'</span>'
     +'</div>'
@@ -567,7 +568,7 @@ function showRemoteModal(n){
     +'</div>'
     +(n.cpu_brand?'<div class="mnote" style="margin-bottom:10px">🖥 '+esc(n.cpu_brand)+'</div>':'')
     +'<div class="mgrid">'
-      +mkMcard('Node Address', n.address||n.ip||'—', '', 'var(--muted)')
+      +mkMcard('Node Address', maskIP(n.address||n.ip||'—'), '', 'var(--muted)')
       +mkMcard('First Seen', n.first_seen?new Date(n.first_seen*1000).toLocaleDateString():'—', '', 'var(--muted)')
     +'</div>';
 }
@@ -698,14 +699,14 @@ function renderSybil(){
       var shortWallet=wallet?(wallet.slice(0,8)+'…'+wallet.slice(-6)):null;
       return '<div class="grid-cell"><span class="node-name-cell" title="'+esc(n.name||'')+'">'+esc(shortDisplay)+'</span></div>'
         +'<div class="grid-cell">'+(wallet?'<span class="wallet-addr" title="'+esc(wallet)+'">'+esc(shortWallet)+'</span><button class="copy-btn2" onclick="copySy(\''+esc(wallet)+'\',this)">⧉</button>':'<span class="wallet-none">— no wallet —</span>')+'</div>'
-        +'<div class="grid-cell"><span class="ip-cell">'+esc(n.ip)+'</span></div>'
+        +'<div class="grid-cell"><span class="ip-cell">'+esc(maskIP(n.ip))+'</span></div>'
         +'<div class="grid-cell"><span class="type-chip-sy type-'+(n.type||'CPU').toLowerCase()+'-sy">'+esc((n.type||'CPU').toUpperCase())+'</span></div>'
         +'<div class="grid-cell" style="justify-content:center"><span class="sdot2 '+(n.active?'on':'off')+'"></span></div>';
     }).join('');
     return '<div class="ip-card '+t.cls+'" id="sycard-'+i+'">'
       +'<div class="ip-hdr" onclick="toggleSy('+i+')">'
       +'<span class="threat-badge '+t.badge+'">'+t.label+'</span>'
-      +'<span class="ip-addr">'+esc(d.ip)+'</span>'
+      +'<span class="ip-addr">'+esc(maskIP(d.ip))+'</span>'
       +'<div class="ip-nodecount"><span class="num">'+d.nodes.length+'</span><span class="lbl">NODES</span></div>'
       +'<span class="ip-wallets">'+(wallets.length>0?'<span>'+wallets.length+'</span> wallet'+(wallets.length!==1?'s':''):'<span style="color:var(--muted)">0</span> wallets')+'</span>'
       +'<span class="chevron">▼</span>'
