@@ -497,7 +497,27 @@ function applyFilter(){
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function maskIP(ip){if(!ip||ip==='—')return ip;var clean=ip.replace(/^::ffff:/i,'');var parts=clean.split(':');var port=parts.length>1&&/^\d+$/.test(parts[parts.length-1])?parts.pop():null;var host=parts.join(':');var oct=host.split('.');if(oct.length===4){var masked=oct[0]+'.xx.xx.'+oct[3];return port?masked+':'+port:masked;}return port?host+':'+port:host;}
+
+function maskIP(ip){
+  if(!ip||ip==='\u2014')return ip;
+  var clean=ip.replace(/^::ffff:/i,'');
+  var col=clean.lastIndexOf(':');
+  var port=(col>0&&/^\d+$/.test(clean.slice(col+1)))?clean.slice(col+1):null;
+  var host=port?clean.slice(0,col):clean;
+  var oct=host.split('.');
+  if(oct.length===4){var m=oct[0]+'.xx.xx.'+oct[3];return port?m+':'+port:m;}
+  return ip;
+}
+
+function maskName(name){
+  if(!name)return name;
+  name=name.replace(/::ffff:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/gi,'::ffff:$1.xx.xx.$4');
+  name=name.replace(/\b(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\b/g,'$1.xx.xx.$4');
+  name=name.replace(/(0x[a-fA-F0-9]{6})[a-fA-F0-9]{30}([a-fA-F0-9]{4})/g,'$1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx$2');
+  return name;
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function renderRows(){
   var start=(curPage-1)*PER_PAGE,end=Math.min(start+PER_PAGE,filtered.length);
@@ -509,7 +529,7 @@ function renderRows(){
     var ip=n.ip||n.address||'—';
     html+='<div class="nrow" data-idx="'+i+'">'
       +'<div style="font-size:11px;color:var(--muted);pointer-events:none">'+(i+1)+'</div>'
-      +'<div class="nname" title="'+esc(n.name)+'">'+esc(n.name)+'</div>'
+      +'<div class="nname" title="'+esc(maskName(n.name))+'">'+esc(maskName(n.name))+'</div>'
       +'<div><span class="tag '+n.type+'">'+n.type+'</span></div>'
       +'<div style="font-size:12px;pointer-events:none">'+res+'</div>'
       +'<div><span class="dot '+(n.active?'on':'off')+'"></span></div>'
@@ -554,7 +574,7 @@ function showRemoteModal(n){
   document.getElementById('mbody').innerHTML=
     '<div class="mhead">'
       +'<div>'
-        +'<div class="mname">'+esc(n.name)+'</div>'
+        +'<div class="mname">'+esc(maskName(n.name))+'</div>'
         +(n.version?'<div class="msub" style="color:var(--green)">v'+esc(n.version)+'</div>':'')
         +'<div class="msub">'+esc(maskIP(n.ip))+'</div>'
       +'</div>'
@@ -568,7 +588,7 @@ function showRemoteModal(n){
     +'</div>'
     +(n.cpu_brand?'<div class="mnote" style="margin-bottom:10px">🖥 '+esc(n.cpu_brand)+'</div>':'')
     +'<div class="mgrid">'
-      +mkMcard('Node Address', maskIP(n.address||n.ip||'—'), '', 'var(--muted)')
+      +mkMcard('Node Address', n.address||n.ip||'—', '', 'var(--muted)')
       +mkMcard('First Seen', n.first_seen?new Date(n.first_seen*1000).toLocaleDateString():'—', '', 'var(--muted)')
     +'</div>';
 }
@@ -697,9 +717,9 @@ function renderSybil(){
       var displayName=(n.name||'').replace(/(0x[a-fA-F0-9]{40})/g,'').replace(/[-_\s]+$/,'').trim()||n.ip;
       var shortDisplay=displayName.length>28?displayName.slice(0,26)+'…':displayName;
       var shortWallet=wallet?(wallet.slice(0,8)+'…'+wallet.slice(-6)):null;
-      return '<div class="grid-cell"><span class="node-name-cell" title="'+esc(n.name||'')+'">'+esc(shortDisplay)+'</span></div>'
+      return '<div class="grid-cell"><span class="node-name-cell" title="'+esc(maskName(n.name||''))+'">'+esc(maskName(shortDisplay))+'</span></div>'
         +'<div class="grid-cell">'+(wallet?'<span class="wallet-addr" title="'+esc(wallet)+'">'+esc(shortWallet)+'</span><button class="copy-btn2" onclick="copySy(\''+esc(wallet)+'\',this)">⧉</button>':'<span class="wallet-none">— no wallet —</span>')+'</div>'
-        +'<div class="grid-cell"><span class="ip-cell">'+esc(n.ip)+'</span></div>'
+        +'<div class="grid-cell"><span class="ip-cell">'+esc(maskIP(n.ip))+'</span></div>'
         +'<div class="grid-cell"><span class="type-chip-sy type-'+(n.type||'CPU').toLowerCase()+'-sy">'+esc((n.type||'CPU').toUpperCase())+'</span></div>'
         +'<div class="grid-cell" style="justify-content:center"><span class="sdot2 '+(n.active?'on':'off')+'"></span></div>';
     }).join('');
