@@ -588,7 +588,7 @@ function showRemoteModal(n){
     +'</div>'
     +(n.cpu_brand?'<div class="mnote" style="margin-bottom:10px">🖥 '+esc(n.cpu_brand)+'</div>':'')
     +'<div class="mgrid">'
-      +mkMcard('Node Address', n.address||n.ip||'—', '', 'var(--muted)')
+      +mkMcard('Node Address', maskIP(n.address||n.ip||'—'), '', 'var(--muted)')
       +mkMcard('First Seen', n.first_seen?new Date(n.first_seen*1000).toLocaleDateString():'—', '', 'var(--muted)')
     +'</div>';
 }
