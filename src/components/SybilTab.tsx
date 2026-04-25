@@ -224,7 +224,7 @@ export function SybilTab({ nodes }: Props) {
                     <span className="font-mono text-info">{d.walletCount}</span> wallet{d.walletCount !== 1 ? "s" : ""}
                   </span>
                   <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")} />
-                </button>
+                </TiltRow>
                 {open && (
                   <div className="border-t border-border bg-background/40 px-5 py-4">
                     <div className="overflow-x-auto">
