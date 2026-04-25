@@ -3,13 +3,17 @@ import { StatCard } from "@/components/StatCard";
 import { NodeDetailModal } from "@/components/NodeDetailModal";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { SybilTab } from "@/components/SybilTab";
+import { BlocksTab } from "@/components/BlocksTab";
+import { UptimeTab } from "@/components/UptimeTab";
+import { MapTab } from "@/components/MapTab";
+import { TiltRow } from "@/components/TiltRow";
 import { useQuipNodes } from "@/hooks/use-quip-nodes";
 import { formatResource, maskIP, maskName, type QuipNode } from "@/lib/quipstats-api";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 
 type Filter = "all" | "active" | "gpu" | "cpu" | "offline";
-type Tab = "nodes" | "analytics" | "sybil";
+type Tab = "nodes" | "analytics" | "blocks" | "uptime" | "map" | "sybil";
 
 const filters: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
@@ -20,9 +24,12 @@ const filters: { id: Filter; label: string }[] = [
 ];
 
 const tabs: { id: Tab; label: string }[] = [
-  { id: "nodes", label: "Live Nodes" },
-  { id: "analytics", label: "Analytics" },
-  { id: "sybil", label: "Sybil Detector" },
+  { id: "nodes", label: "🖥 Live Nodes" },
+  { id: "analytics", label: "📊 Analytics" },
+  { id: "blocks", label: "🏆 Block Leaderboard" },
+  { id: "uptime", label: "⏱ Uptime" },
+  { id: "map", label: "🗺 Node Map" },
+  { id: "sybil", label: "🚨 Sybil Detector" },
 ];
 
 const PER_PAGE = 50;
