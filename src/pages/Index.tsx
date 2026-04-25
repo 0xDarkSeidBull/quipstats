@@ -11,24 +11,24 @@ import { formatResource, maskIP, maskName, type QuipNode } from "@/lib/quipstats
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 
-type Filter = "all" | "active" | "gpu" | "cpu" | "offline";
-type Tab = "nodes" | "analytics" | "blocks" | "uptime" | "map" | "sybil";
+type Filter = "all" | "active" | "gpu" | "cpu" | "qpu" | "offline";
+type Tab = "nodes" | "analytics" | "blocks" | "uptime" | "sybil";
 
 const filters: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "active", label: "Active" },
   { id: "gpu", label: "GPU" },
   { id: "cpu", label: "CPU" },
+  { id: "qpu", label: "QPU" },
   { id: "offline", label: "Offline" },
 ];
 
 const tabs: { id: Tab; label: string }[] = [
-  { id: "nodes", label: "🖥 Live Nodes" },
-  { id: "analytics", label: "📊 Analytics" },
-  { id: "blocks", label: "🏆 Block Leaderboard" },
-  { id: "uptime", label: "⏱ Uptime" },
-  { id: "map", label: "🗺 Node Map" },
-  { id: "sybil", label: "🚨 Sybil Detector" },
+  { id: "nodes", label: "Live Nodes" },
+  { id: "analytics", label: "Analytics" },
+  { id: "blocks", label: "Block Leaderboard" },
+  { id: "uptime", label: "Uptime" },
+  { id: "sybil", label: "Sybil Detector" },
 ];
 
 const PER_PAGE = 50;
