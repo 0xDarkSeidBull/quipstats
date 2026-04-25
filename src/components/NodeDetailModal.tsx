@@ -29,8 +29,7 @@ export function NodeDetailModal({ node, open, onClose }: NodeDetailModalProps) {
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
-        className="border-none bg-transparent p-0 shadow-none sm:max-w-[640px]"
-        hideClose
+        className="border-none bg-transparent p-0 shadow-none sm:max-w-[640px] [&>button]:hidden"
       >
         <TiltCard
           tiltLimit={6}
