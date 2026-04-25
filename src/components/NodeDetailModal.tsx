@@ -1,11 +1,13 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { TiltCard } from "@/components/TiltCard";
-import type { NodeRecord } from "@/lib/mock-nodes";
+import type { QuipNode } from "@/lib/quipstats-api";
+import { formatResource, maskIP, maskName } from "@/lib/quipstats-api";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 interface NodeDetailModalProps {
-  node: NodeRecord | null;
+  node: QuipNode | null;
   open: boolean;
   onClose: () => void;
 }
@@ -16,7 +18,7 @@ function Field({ label, value, valueClass }: { label: string; value: string; val
       <div className="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </div>
-      <div className={cn("font-mono text-lg font-medium tracking-tight text-foreground", valueClass)}>
+      <div className={cn("font-mono text-base font-medium tracking-tight text-foreground break-all", valueClass)}>
         {value}
       </div>
     </div>
@@ -25,12 +27,17 @@ function Field({ label, value, valueClass }: { label: string; value: string; val
 
 export function NodeDetailModal({ node, open, onClose }: NodeDetailModalProps) {
   if (!node) return null;
+  const ramGB = node.ram ? `${(node.ram / 1024).toFixed(1)} GB` : "—";
+  const lastSeen = node.lastSeen ? new Date(node.lastSeen * 1000).toLocaleTimeString() : "—";
+  const firstSeen = node.firstSeen ? new Date(node.firstSeen * 1000).toLocaleDateString() : "—";
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent
-        className="border-none bg-transparent p-0 shadow-none sm:max-w-[640px] [&>button]:hidden"
-      >
+      <DialogContent className="border-none bg-transparent p-0 shadow-none sm:max-w-[640px] [&>button]:hidden">
+        <VisuallyHidden.Root>
+          <DialogTitle>Node {maskName(node.name)}</DialogTitle>
+          <DialogDescription>Live telemetry details for this node.</DialogDescription>
+        </VisuallyHidden.Root>
         <TiltCard
           tiltLimit={6}
           scale={1.01}
@@ -45,8 +52,12 @@ export function NodeDetailModal({ node, open, onClose }: NodeDetailModalProps) {
                 Node
               </div>
               <h2 className="truncate font-mono text-base font-semibold text-foreground">
-                {node.name}
+                {maskName(node.name)}
               </h2>
+              {node.version && (
+                <div className="mt-1 font-mono text-[11px] text-success">v{node.version}</div>
+              )}
+              <div className="mt-1 font-mono text-[11px] text-muted-foreground">{maskIP(node.ip)}</div>
             </div>
             <div className="flex items-center gap-2">
               <span className="rounded-md border border-border bg-background/60 px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -63,17 +74,23 @@ export function NodeDetailModal({ node, open, onClose }: NodeDetailModalProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Resources" value={node.resources} />
+            <Field label="Resources" value={formatResource(node)} />
             <Field
               label="Status"
-              value={node.status === "online" ? "Online" : "Offline"}
-              valueClass={node.status === "online" ? "text-success" : "text-destructive"}
+              value={node.active ? "Online" : "Offline"}
+              valueClass={node.active ? "text-success" : "text-destructive"}
             />
-            <Field label="Last Seen" value={node.lastSeen} />
-            <Field label="RAM" value={node.ram ?? "—"} />
-            <Field label="Node Address" value={node.ip} />
-            <Field label="First Seen" value={node.firstSeen} />
+            <Field label="Last Seen" value={lastSeen} />
+            <Field label="RAM" value={ramGB} />
+            <Field label="Node Address" value={maskIP(node.address || node.ip || "—")} />
+            <Field label="First Seen" value={firstSeen} />
           </div>
+
+          {node.cpuBrand && (
+            <div className="mt-3 rounded-md border border-border/70 bg-background/60 px-4 py-3 text-[11px] text-muted-foreground">
+              <span className="text-foreground">CPU:</span> {node.cpuBrand}
+            </div>
+          )}
         </TiltCard>
       </DialogContent>
     </Dialog>
