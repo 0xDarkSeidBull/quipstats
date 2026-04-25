@@ -5,7 +5,6 @@ import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { SybilTab } from "@/components/SybilTab";
 import { BlocksTab } from "@/components/BlocksTab";
 import { UptimeTab } from "@/components/UptimeTab";
-import { MapTab } from "@/components/MapTab";
 import { TiltRow } from "@/components/TiltRow";
 import { useQuipNodes } from "@/hooks/use-quip-nodes";
 import { formatResource, maskIP, maskName, type QuipNode } from "@/lib/quipstats-api";
