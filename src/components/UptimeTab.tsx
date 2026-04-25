@@ -54,10 +54,10 @@ export function UptimeTab({ nodes, onSelect }: Props) {
   return (
     <div>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="⏱ Max Uptime" value={fmtUptime(data.max)} sub="longest running node" tone="warning" />
-        <Stat label="✅ Long Running" value={data.longRun.toLocaleString()} sub="online 24h+" tone="success" />
-        <Stat label="📊 Avg Uptime" value={fmtUptime(data.avg)} sub="across tracked nodes" tone="info" />
-        <Stat label="🌐 Tracked" value={data.arr.length.toLocaleString()} sub="nodes with uptime data" />
+        <Stat label="Max Uptime" value={fmtUptime(data.max)} sub="longest running node" tone="warning" />
+        <Stat label="Long Running" value={data.longRun.toLocaleString()} sub="online 24h+" tone="success" />
+        <Stat label="Avg Uptime" value={fmtUptime(data.avg)} sub="across tracked nodes" tone="info" />
+        <Stat label="Tracked" value={data.arr.length.toLocaleString()} sub="nodes with uptime data" />
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
