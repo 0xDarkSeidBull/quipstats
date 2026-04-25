@@ -143,14 +143,14 @@ export default function Index() {
             </div>
 
             <section className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
-              <StatCard label="Live Nodes" value={stats.live.toLocaleString()} hint="API snapshot" tone="success" />
-              <StatCard label="Ever Seen" value={stats.everSeen.toLocaleString()} hint="all-time" />
-              <StatCard label="Active Now" value={stats.activeNow.toLocaleString()} hint="from telemetry" />
-              <StatCard label="CPU Active" value={stats.cpuActive.toLocaleString()} hint="CPU nodes" tone="info" />
-              <StatCard label="GPU Active" value={stats.gpuActive.toLocaleString()} hint="GPU nodes" tone="success" />
-              <StatCard label="QPU Active" value={stats.qpuActive.toLocaleString()} hint="quantum" tone="muted" />
-              <StatCard label="Ver. Mismatch" value={stats.versionMismatch.toLocaleString()} hint="need update" tone="warning" />
-              <StatCard label="Lost" value={stats.lost.toLocaleString()} hint="disconnected" tone="destructive" />
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Live Nodes" value={stats.live.toLocaleString()} hint="API snapshot" tone="success" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Ever Seen" value={stats.everSeen.toLocaleString()} hint="all-time" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Active Now" value={stats.activeNow.toLocaleString()} hint="from telemetry" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="CPU Active" value={stats.cpuActive.toLocaleString()} hint="CPU nodes" tone="info" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="GPU Active" value={stats.gpuActive.toLocaleString()} hint="GPU nodes" tone="success" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="QPU Active" value={stats.qpuActive.toLocaleString()} hint="quantum" tone="muted" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Ver. Mismatch" value={stats.versionMismatch.toLocaleString()} hint="need update" tone="warning" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Lost" value={stats.lost.toLocaleString()} hint="disconnected" tone="destructive" /></TiltRow>
             </section>
 
             <div className="mb-4 flex flex-wrap items-center gap-2">
