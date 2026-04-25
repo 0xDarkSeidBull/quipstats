@@ -258,14 +258,13 @@ export default function Index() {
         )}
 
         {tab === "analytics" && <AnalyticsTab nodes={nodes} />}
-        {tab === "blocks" && <BlocksTab />}
-        {tab === "uptime" && <UptimeTab nodes={nodes} />}
-        {tab === "map" && <MapTab nodes={nodes} />}
+        {tab === "blocks" && <BlocksTab nodes={nodes} onSelect={setSelected} />}
+        {tab === "uptime" && <UptimeTab nodes={nodes} onSelect={setSelected} />}
         {tab === "sybil" && <SybilTab nodes={nodes} />}
       </main>
 
       <footer className="mx-auto max-w-[1280px] border-t border-border px-6 py-6 text-center text-[11px] text-muted-foreground sm:px-8">
-        QuipStats · Live network telemetry · Auto-refreshes every 30s
+        QuipStats · Live network telemetry · Auto-refreshes every 30s · Built with <span className="text-destructive">♥</span> by <span className="font-mono text-foreground">0xDarkSeidBull</span>
       </footer>
 
       <NodeDetailModal node={selected} open={!!selected} onClose={() => setSelected(null)} />
