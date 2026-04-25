@@ -4,6 +4,7 @@ import {
 } from "recharts";
 import type { QuipNode } from "@/lib/quipstats-api";
 import { maskName } from "@/lib/quipstats-api";
+import { TiltRow } from "@/components/TiltRow";
 
 interface Props { nodes: QuipNode[]; }
 
@@ -18,13 +19,13 @@ function Card({
   title, sub, children,
 }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <TiltRow tilt={4} scale={1.01} spotlight className="rounded-xl border border-border bg-surface p-5">
       <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground">
         {title}
       </div>
       {sub && <div className="mb-4 text-[11px] text-muted-foreground">{sub}</div>}
       {children}
-    </div>
+    </TiltRow>
   );
 }
 
