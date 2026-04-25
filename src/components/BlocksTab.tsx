@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { TiltRow } from "@/components/TiltRow";
-import { fetchBlocks, type BlocksResponse, timeAgo } from "@/lib/quipstats-api";
+import { fetchBlocks, type BlocksResponse, type QuipNode, timeAgo } from "@/lib/quipstats-api";
 
 function shortMiner(id: string) {
   const w = id.match(/(0x[a-fA-F0-9]{40})/);
@@ -9,10 +9,11 @@ function shortMiner(id: string) {
   return { display, walletShort: wallet ? `${wallet.slice(0, 6)}…${wallet.slice(-4)}` : "" };
 }
 
-const RANK_EMOJI = ["🥇", "🥈", "🥉"];
 const RANK_COLOR = ["text-warning", "text-muted-foreground", "text-info"];
 
-export function BlocksTab() {
+interface Props { nodes?: QuipNode[]; onSelect?: (n: QuipNode) => void; }
+
+export function BlocksTab({ nodes = [], onSelect }: Props) {
   const [data, setData] = useState<BlocksResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,10 +59,10 @@ export function BlocksTab() {
   return (
     <div>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatPill label="⛏ Total Blocks" value={stats.total.toLocaleString()} />
-        <StatPill label="🥇 Top Miner" value={stats.topName} sub={`${stats.topBlocks.toLocaleString()} blocks`} small tone="warning" />
-        <StatPill label="⚡ Best Energy" value={stats.bestE ? stats.bestE.toLocaleString() : "—"} sub="lowest = best proof" tone="success" small />
-        <StatPill label="👥 Unique Miners" value={stats.miners.toLocaleString()} tone="info" />
+        <StatPill label="Total Blocks" value={stats.total.toLocaleString()} />
+        <StatPill label="Top Miner" value={stats.topName} sub={`${stats.topBlocks.toLocaleString()} blocks`} small tone="warning" />
+        <StatPill label="Best Energy" value={stats.bestE ? stats.bestE.toLocaleString() : "—"} sub="lowest = best proof" tone="success" small />
+        <StatPill label="Unique Miners" value={stats.miners.toLocaleString()} tone="info" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
@@ -75,16 +76,21 @@ export function BlocksTab() {
               {lb.map((m, i) => {
                 const sm = shortMiner(m.miner_id || "");
                 const pct = Math.round((m.blocks / maxBlocks) * 100);
+                const matchedNode = onSelect && nodes.length
+                  ? nodes.find((n) => sm.display && n.name.toLowerCase().includes(sm.display.toLowerCase()))
+                  : undefined;
                 return (
                   <TiltRow
                     key={m.miner_id + i}
+                    as={matchedNode ? "button" : "div"}
+                    onClick={matchedNode ? () => onSelect?.(matchedNode) : undefined}
                     tilt={4}
                     scale={1.01}
                     spotlight
-                    className="grid grid-cols-[40px_minmax(0,1fr)_70px_110px_120px] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-b-0 hover:bg-accent/30"
+                    className={`grid w-full grid-cols-[40px_minmax(0,1fr)_70px_110px_120px] items-center gap-3 border-b border-border/60 px-4 py-3 text-left last:border-b-0 hover:bg-accent/30 ${matchedNode ? "cursor-pointer" : ""}`}
                   >
                     <div className={`text-center text-[13px] font-semibold ${i < 3 ? RANK_COLOR[i] : "text-muted-foreground"}`}>
-                      {i < 3 ? RANK_EMOJI[i] : i + 1}
+                      {i + 1}
                     </div>
                     <div className="min-w-0">
                       <div className="truncate font-mono text-[12.5px] font-semibold text-foreground" title={m.miner_id}>{sm.display || "Unknown"}</div>
@@ -133,10 +139,10 @@ export function BlocksTab() {
                     </div>
                     <div className="mt-0.5 truncate font-mono text-[11.5px]" title={mid}>{display}</div>
                     <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
-                      <span>⚡ <span className="text-success font-semibold">{energy}</span></span>
-                      <span>🌈 <span className="text-foreground font-semibold">{div}</span></span>
-                      <span>✅ <span className="text-foreground font-semibold">{sols} sol</span></span>
-                      {mt != null && <span>⏱ <span className="text-foreground font-semibold">{mt}s</span></span>}
+                      <span>Energy <span className="text-success font-semibold">{energy}</span></span>
+                      <span>Diversity <span className="text-foreground font-semibold">{div}</span></span>
+                      <span><span className="text-foreground font-semibold">{sols}</span> sol</span>
+                      {mt != null && <span><span className="text-foreground font-semibold">{mt}s</span></span>}
                     </div>
                   </TiltRow>
                 );

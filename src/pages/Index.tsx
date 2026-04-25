@@ -5,31 +5,30 @@ import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { SybilTab } from "@/components/SybilTab";
 import { BlocksTab } from "@/components/BlocksTab";
 import { UptimeTab } from "@/components/UptimeTab";
-import { MapTab } from "@/components/MapTab";
 import { TiltRow } from "@/components/TiltRow";
 import { useQuipNodes } from "@/hooks/use-quip-nodes";
 import { formatResource, maskIP, maskName, type QuipNode } from "@/lib/quipstats-api";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 
-type Filter = "all" | "active" | "gpu" | "cpu" | "offline";
-type Tab = "nodes" | "analytics" | "blocks" | "uptime" | "map" | "sybil";
+type Filter = "all" | "active" | "gpu" | "cpu" | "qpu" | "offline";
+type Tab = "nodes" | "analytics" | "blocks" | "uptime" | "sybil";
 
 const filters: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "active", label: "Active" },
   { id: "gpu", label: "GPU" },
   { id: "cpu", label: "CPU" },
+  { id: "qpu", label: "QPU" },
   { id: "offline", label: "Offline" },
 ];
 
 const tabs: { id: Tab; label: string }[] = [
-  { id: "nodes", label: "🖥 Live Nodes" },
-  { id: "analytics", label: "📊 Analytics" },
-  { id: "blocks", label: "🏆 Block Leaderboard" },
-  { id: "uptime", label: "⏱ Uptime" },
-  { id: "map", label: "🗺 Node Map" },
-  { id: "sybil", label: "🚨 Sybil Detector" },
+  { id: "nodes", label: "Live Nodes" },
+  { id: "analytics", label: "Analytics" },
+  { id: "blocks", label: "Block Leaderboard" },
+  { id: "uptime", label: "Uptime" },
+  { id: "sybil", label: "Sybil Detector" },
 ];
 
 const PER_PAGE = 50;
@@ -75,6 +74,7 @@ export default function Index() {
         case "offline": return !n.active;
         case "gpu": return n.active && n.type === "GPU";
         case "cpu": return n.active && n.type === "CPU";
+        case "qpu": return n.active && n.type === "QPU";
         default: return true;
       }
     });
@@ -143,14 +143,14 @@ export default function Index() {
             </div>
 
             <section className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
-              <StatCard label="Live Nodes" value={stats.live.toLocaleString()} hint="API snapshot" tone="success" />
-              <StatCard label="Ever Seen" value={stats.everSeen.toLocaleString()} hint="all-time" />
-              <StatCard label="Active Now" value={stats.activeNow.toLocaleString()} hint="from telemetry" />
-              <StatCard label="CPU Active" value={stats.cpuActive.toLocaleString()} hint="CPU nodes" tone="info" />
-              <StatCard label="GPU Active" value={stats.gpuActive.toLocaleString()} hint="GPU nodes" tone="success" />
-              <StatCard label="QPU Active" value={stats.qpuActive.toLocaleString()} hint="quantum" tone="muted" />
-              <StatCard label="Ver. Mismatch" value={stats.versionMismatch.toLocaleString()} hint="need update" tone="warning" />
-              <StatCard label="Lost" value={stats.lost.toLocaleString()} hint="disconnected" tone="destructive" />
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Live Nodes" value={stats.live.toLocaleString()} hint="API snapshot" tone="success" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Ever Seen" value={stats.everSeen.toLocaleString()} hint="all-time" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Active Now" value={stats.activeNow.toLocaleString()} hint="from telemetry" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="CPU Active" value={stats.cpuActive.toLocaleString()} hint="CPU nodes" tone="info" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="GPU Active" value={stats.gpuActive.toLocaleString()} hint="GPU nodes" tone="success" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="QPU Active" value={stats.qpuActive.toLocaleString()} hint="quantum" tone="muted" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Ver. Mismatch" value={stats.versionMismatch.toLocaleString()} hint="need update" tone="warning" /></TiltRow>
+              <TiltRow tilt={5} scale={1.02} spotlight className="rounded-lg"><StatCard label="Lost" value={stats.lost.toLocaleString()} hint="disconnected" tone="destructive" /></TiltRow>
             </section>
 
             <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -258,14 +258,13 @@ export default function Index() {
         )}
 
         {tab === "analytics" && <AnalyticsTab nodes={nodes} />}
-        {tab === "blocks" && <BlocksTab />}
-        {tab === "uptime" && <UptimeTab nodes={nodes} />}
-        {tab === "map" && <MapTab nodes={nodes} />}
+        {tab === "blocks" && <BlocksTab nodes={nodes} onSelect={setSelected} />}
+        {tab === "uptime" && <UptimeTab nodes={nodes} onSelect={setSelected} />}
         {tab === "sybil" && <SybilTab nodes={nodes} />}
       </main>
 
       <footer className="mx-auto max-w-[1280px] border-t border-border px-6 py-6 text-center text-[11px] text-muted-foreground sm:px-8">
-        QuipStats · Live network telemetry · Auto-refreshes every 30s
+        QuipStats · Live network telemetry · Auto-refreshes every 30s · Built with <span className="text-destructive">♥</span> by <span className="font-mono text-foreground">0xDarkSeidBull</span>
       </footer>
 
       <NodeDetailModal node={selected} open={!!selected} onClose={() => setSelected(null)} />

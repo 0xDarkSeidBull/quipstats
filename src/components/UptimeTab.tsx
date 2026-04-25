@@ -5,7 +5,7 @@ import { maskName } from "@/lib/quipstats-api";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 
-interface Props { nodes: QuipNode[]; }
+interface Props { nodes: QuipNode[]; onSelect?: (n: QuipNode) => void; }
 type Filter = "all" | "active" | "24h" | "7d";
 
 const filters: { id: Filter; label: string }[] = [
@@ -23,7 +23,7 @@ function fmtUptime(hrs: number) {
   return `${(Math.round(hrs * 10) / 10)}h`;
 }
 
-export function UptimeTab({ nodes }: Props) {
+export function UptimeTab({ nodes, onSelect }: Props) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -54,10 +54,10 @@ export function UptimeTab({ nodes }: Props) {
   return (
     <div>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="⏱ Max Uptime" value={fmtUptime(data.max)} sub="longest running node" tone="warning" />
-        <Stat label="✅ Long Running" value={data.longRun.toLocaleString()} sub="online 24h+" tone="success" />
-        <Stat label="📊 Avg Uptime" value={fmtUptime(data.avg)} sub="across tracked nodes" tone="info" />
-        <Stat label="🌐 Tracked" value={data.arr.length.toLocaleString()} sub="nodes with uptime data" />
+        <Stat label="Max Uptime" value={fmtUptime(data.max)} sub="longest running node" tone="warning" />
+        <Stat label="Long Running" value={data.longRun.toLocaleString()} sub="online 24h+" tone="success" />
+        <Stat label="Avg Uptime" value={fmtUptime(data.avg)} sub="across tracked nodes" tone="info" />
+        <Stat label="Tracked" value={data.arr.length.toLocaleString()} sub="nodes with uptime data" />
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -95,10 +95,12 @@ export function UptimeTab({ nodes }: Props) {
             return (
               <TiltRow
                 key={n.uid + i}
+                as={onSelect ? "button" : "div"}
+                onClick={onSelect ? () => onSelect(n) : undefined}
                 tilt={4}
                 scale={1.01}
                 spotlight
-                className="grid grid-cols-[40px_minmax(0,1fr)_70px_minmax(0,1fr)_110px_70px] items-center gap-3 border-b border-border/60 px-4 py-3 last:border-b-0 hover:bg-accent/30"
+                className={cn("grid w-full grid-cols-[40px_minmax(0,1fr)_70px_minmax(0,1fr)_110px_70px] items-center gap-3 border-b border-border/60 px-4 py-3 text-left last:border-b-0 hover:bg-accent/30", onSelect && "cursor-pointer")}
               >
                 <div className={`text-center text-[12px] font-semibold ${i < 3 ? RANK_COLOR[i] : "text-muted-foreground"}`}>{i + 1}</div>
                 <div className="truncate font-mono text-[12.5px] font-semibold" title={n.name}>{maskName(n.name)}</div>
