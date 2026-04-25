@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, Copy, Download, Search } from "lucide-react";
+import { ChevronDown, Copy, Download, Search, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TiltRow } from "@/components/TiltRow";
 import type { QuipNode } from "@/lib/quipstats-api";
 import { extractWallet, maskIP, maskName } from "@/lib/quipstats-api";
 
@@ -18,20 +19,20 @@ const filters = [
 type SortKey = "count-desc" | "count-asc" | "wallets-desc";
 
 function threatLevel(n: number) {
-  if (n >= 50) return { label: "Critical", tone: "bg-destructive/15 text-destructive border-destructive/40", bar: "border-l-destructive" };
-  if (n >= 10) return { label: "High", tone: "bg-warning/15 text-warning border-warning/40", bar: "border-l-warning" };
-  return { label: "Medium", tone: "bg-info/15 text-info border-info/40", bar: "border-l-info" };
+  if (n >= 50) return { label: "Critical", chip: "border-warning/30 bg-warning/10 text-warning", bar: "border-l-warning" };
+  if (n >= 10) return { label: "High",     chip: "border-info/30 bg-info/10 text-info",          bar: "border-l-info" };
+  return        { label: "Medium",   chip: "border-border bg-muted/40 text-muted-foreground",   bar: "border-l-border" };
 }
 
 function StatChip({
   label, value, tone,
-}: { label: string; value: string | number; tone?: "default" | "destructive" | "warning" | "info" | "success" }) {
+}: { label: string; value: string | number; tone?: "default" | "warning" | "info" | "success" | "muted" }) {
   const toneClass: Record<string, string> = {
     default: "text-foreground",
-    destructive: "text-destructive",
     warning: "text-warning",
     info: "text-info",
     success: "text-success",
+    muted: "text-muted-foreground",
   };
   return (
     <div className="rounded-lg border border-border bg-surface px-5 py-4">
